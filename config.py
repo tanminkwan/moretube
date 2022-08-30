@@ -1,5 +1,5 @@
 import os
-import redis
+#import redis
 
 from flask_appbuilder.security.manager import (
     AUTH_OID,
@@ -17,16 +17,16 @@ SECRET_KEY = "\2\1thisismyscretkey\1\2\e\y\y\h"
 # The SQLAlchemy connection string.
 # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "app.db")
 # SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
-# SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
+SQLALCHEMY_DATABASE_URI = 'postgresql://tiffanie:1q2w3e4r!!@localhost/moretube'
 
-SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URI']
+# SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URI']
 
 STREAM_URL = os.environ['STREAM_URL'] if os.environ.get('STREAM_URL') else ''
 
-SESSION_TYPE = 'redis'
-SESSION_PERMANENT = False
-SESSION_USE_SIGNER = True
-SESSION_REDIS = redis.from_url(os.environ['REDIS_URI'])
+#SESSION_TYPE = 'redis'
+#SESSION_PERMANENT = False
+#SESSION_USE_SIGNER = True
+#SESSION_REDIS = redis.from_url(os.environ['REDIS_URI'])
 
 # Flask-WTF flag for CSRF
 CSRF_ENABLED = True
