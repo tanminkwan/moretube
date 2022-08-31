@@ -10,6 +10,7 @@ from .scheduled_jobs import job_create_job
 import os
 import re
 import json
+from youtube_transcript_api import YouTubeTranscriptApi
 
 """
     Create your Model based REST API::
@@ -104,6 +105,15 @@ class ProgramApi(ModelRestApi):
     list_columns = ['program_name','description','author','contentmaster','user_id','create_on','hostname']
     show_columns = ['program_name','description','author','contentmaster','user_id','create_on','hostname']
 
+class ContentsInfo(BaseApi):
+  
+    resource_name = 'mytube'
+    
+    @expose('/caption/<id>', methods=['GET'])
+    @has_access
+    def getCaption(self, id):
+         return jsonify(YouTubeTranscriptApi.get_transcript(id, languages=['en']))
+  
 class UserManager(BaseApi):
     
     resource_name = 'user'
@@ -341,3 +351,4 @@ appbuilder.add_api(ContentsManager)
 appbuilder.add_api(UserManager)
 appbuilder.add_api(ContentMasterApi)
 appbuilder.add_api(ProgramApi)
+appbuilder.add_api(ContentsInfo)
