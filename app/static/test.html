@@ -74,10 +74,10 @@
       var done = false;
       function onPlayerStateChange(event) {
         console.log("done : "+done)
-        if (event.data == YT.PlayerState.PLAYING && !done) {
-          setTimeout(stopVideo, 6000);
-          done = true;
-        }
+        //if (event.data == YT.PlayerState.PLAYING && !done) {
+        //  setTimeout(stopVideo, 6000);
+        //  done = true;
+        //}
         //document.getElementById('status').html(event.data);
         document.getElementById('status').innerHTML = event.data;
         document.getElementById('quality').innerHTML = player.getPlaybackQuality()
@@ -124,8 +124,16 @@
         player.seekTo(player.getCurrentTime() - 0.5, true);        
         player.playVideo();
       }
+      
+      function playById(id){
+        
+        player.seekTo(captions[id].start , true);
+        player.playVideo();
+
+      }
 
       let captions = [];
+      var current_caption = 0;
       function getcaptions() {
 
         $.ajax({
@@ -134,16 +142,17 @@
         }).done(function (response) {
             //captions = jQuery.parseJSON(response);
             captions = response;
-            console.log(captions)
+            //console.log(captions)
             $("#caption-ul").empty();
             $(response).each(function(i,val)
             {
-              var line = ""+i;
-              $.each(val,function(key,val)
-              {
-                line = line + key + ": " + val + " "; 
+              var line = ""+i+" start:"+val.start+" end:"+val.end+" text:"+val.text;
+              //console.log(val.duration)
+              //$.each(val,function(key,val)
+              //{
+              //  line = line + key + ": " + val + " "; 
                 //console.log(key + " : " + val);     
-              });
+              //});
               $("#caption-ul").append('<li id="li-'+ i +'">'+ line +"</li>");
               //console.log(i + " : " + val);
 
@@ -152,28 +161,38 @@
             console.log();
         });
 
-        console.log(captions)
+        //console.log(captions)
       }
 
       // Update the count down every 1 second
       var x = setInterval(function() {
         var ct = player.getCurrentTime();
         document.getElementById('time').innerHTML = "경과시간 : " + ct;
-        if(captions===[]){
+        if(captions.length==0){
         }else{
           //var val = captions.filter(function(e){
             //console.log("each : "+e.start+","+ct+","+e.duration);
             //return e.start < ct && e.end >= ct;
           //})
-          console.log("val : "+binarySearch(captions, ct))
-          //captionScroll(val.id)
+          //console.log("val : "+binarySearch(captions, ct))
+          document.getElementById('current').innerHTML = "길이 : " + captions.length + " ID : " + current_caption;
+          if(captions[current_caption].start < ct && captions[current_caption].end > ct){
+
+          }else{
+            var val_id = musicSearch(captions, ct);
+            if(val_id>=0){
+              current_caption = val_id
+              //console.log("val_id:"+val_id);
+              captionScroll(val_id);
+            }
+          }
         }
       }, 500);
 
       function captionScroll(x) {
         //$('#caption-ul').scrollTop($('#caption-ul li:eq('+x+')').offset().top);
         $('#caption-ul').scrollTop($('#caption-ul li:nth-child('+x+')').position().top - $('#caption-ul li:first').position().top);
-        $('#li-'+x).css("background-color","blue")
+        $('#li-'+x).css("background-color","white")
         //$("caption-ul").get(x).scrollIntoView();
       }
 
@@ -201,24 +220,38 @@
             //recalculate middle
             middle = Math.floor((stopIndex + startIndex)/2);
         }
-    
+        
         //make sure it's the right value
         return (items[middle] != value) ? -1 : middle;
       }
-      </script>
+
+      function musicSearch(items, value){
+        var rtn = -1;
+        jQuery.each( items, function( i, val ) {
+          if(val.start<value && val.end>=value){
+            console.log("musicSearch:"+val.start);
+            rtn = val.id;
+            return false; 
+          }
+        });
+        return rtn;
+      }
+
+    </script>
   <div id="time"></div>
   <div id="quality"></div>
+  <div id="current"></div>
   <div id="status">here!
   </div>
   <div>
     <button onclick="mypause()" accesskey="p">pause</button>
     <button onclick="mystart()" accesskey="e">play</button>
-    <button onclick="myFunction1()" accesskey="a">F1</button>
-    <button onclick="myFunction2()" accesskey="b">seek&Play</button>
+    <button onclick="playById(current_caption-1)" accesskey="<">이전</button>
+    <button onclick="playById(current_caption)" accesskey="r">다시</button>
+    <button onclick="playById(current_caption+1)" accesskey=">">다음</button>
     <button onclick="myFunction3()" accesskey="c">빨리</button>
     <button onclick="myFunction4()" accesskey="d">느리게</button>
     <button onclick="getcaptions()" accesskey="s">자막조회</button>
-    <button onclick="captionScroll(15)" accesskey="s">자막Scroll</button>
   </div>
   <div id="caption">
     <nav>
