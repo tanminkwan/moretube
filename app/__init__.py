@@ -26,7 +26,6 @@ scheduler.start()
 CORS(app)
 appbuilder = AppBuilder(app, db.session)
 
-
 """
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
