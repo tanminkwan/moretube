@@ -26,6 +26,11 @@
     .caption-li:hover {
       background-color: yellow;
     }
+    .player-info {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
   </style>
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     <div>
@@ -304,10 +309,15 @@
     </script>
   <div id="stopmode" class="selectGroup"></div>
   <br><br>
-  <div id="time"></div>
-  <div id="quality"></div>
-  <div id="current"></div>
-  <div id="status">here!
+  <div>
+    <table>
+      <tr>
+        <th class="player-info" id="time"></th>
+        <th class="player-info" id="quality"></th>
+        <th class="player-info" id="current"></th>
+        <th class="player-info" id="status"></th>
+      </tr>
+    </table>
   </div>
   <div>
     <button onclick="mypause()" accesskey="p">pause(ALT-p)</button>
