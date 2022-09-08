@@ -121,9 +121,11 @@ class ContentsInfo(BaseApi):
     @expose('/caption/<id>', methods=['GET'])
     @has_access
     def getCaption(self, id):
+      
       jlist = YouTubeTranscriptApi.get_transcript(id, languages=['en'])
-      data = [ j | {'id':i,'end':round(j['start']+j['duration'],2)} for i, j in enumerate(jlist)]
-      print(data)
+      #data = [ j | {'id':i,'end':round(j['start']+j['duration'],2)} for i, j in enumerate(jlist)]
+      data = [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
+      
       return jsonify(data)
   
 class UserManager(BaseApi):
