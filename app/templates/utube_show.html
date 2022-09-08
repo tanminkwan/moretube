@@ -1,6 +1,8 @@
 {% extends "appbuilder/base.html" %}
 {% import 'appbuilder/general/lib.html' as lib %}
 {% block content %}
+<link rel="stylesheet" href="/static/css/toggle.css" />
+<script src="/static/js/toggle.js"></script>
   <style>
     #nav-cap ul{height:300px; width:80%;}
     #nav-cap ul{overflow:hidden; overflow-y:scroll;}
@@ -26,11 +28,33 @@
     <div>
       <h3>{{content_description}}</h3>
     </div>
+    <div>
     <div id="player"></div>
+    </div>
 
     <script>
 
-      var youtubeid = "{{content_url}}";
+      let playMode = 1;
+      let youtubeid = "{{content_url}}";
+      let captions = [];
+      let current_caption = 0;
+
+      $(document).ready(function () {
+        function toggleValueChanged(selectedValue) {
+          playMode = selectedValue;
+        }
+
+        let opt = [
+          { value: 1, label: "연속재생" },
+          { value: 2, label: "구간재생" },
+        ];
+
+        $("#stopmode").setupToggles({
+          toggleOptions: opt,
+          defaultValue: 1,
+          onSelectedValueChange: toggleValueChanged,
+        });
+      });
 
       // 2. This code loads the IFrame Player API code asynchronously.
       var tag = document.createElement('script');
@@ -148,13 +172,16 @@
       
       function playById(id){
         
+        if(playMode==2){
+          current_caption=id
+          captionScroll(current_caption);
+        }
+
         player.seekTo(captions[id].start , true);
         player.playVideo();
 
       }
 
-      let captions = [];
-      var current_caption = 0;
       function getcaptions() {
 
         $.ajax({
@@ -198,15 +225,26 @@
           //})
           //console.log("val : "+binarySearch(captions, ct))
           document.getElementById('current').innerHTML = "길이 : " + captions.length + " ID : " + current_caption;
-          if(captions[current_caption].start < ct && captions[current_caption].end > ct){
 
-          }else{
-            var val_id = musicSearch(captions, ct);
-            if(val_id>=0){
-              current_caption = val_id
-              //console.log("val_id:"+val_id);
-              captionScroll(val_id);
+          if(playMode==1){
+          
+            if(captions[current_caption].start < ct && captions[current_caption].end > ct){
+
+            }else{
+              var val_id = musicSearch(captions, ct);
+              if(val_id>=0){
+                current_caption = val_id
+                captionScroll(val_id);
+              }
             }
+          }else if (playMode==2) {
+
+            if(captions[current_caption].end < ct){
+              mypause();
+            }
+            
+          } else {
+            
           }
 
         }
@@ -261,6 +299,8 @@
       }
 
     </script>
+  <div id="stopmode" class="selectGroup"></div>
+  <br><br>
   <div id="time"></div>
   <div id="quality"></div>
   <div id="current"></div>
