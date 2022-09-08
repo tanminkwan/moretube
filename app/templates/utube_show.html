@@ -85,8 +85,8 @@
         player.playVideo();
       }
       function myFunction2() {
-        player.seekTo(100, true);
-        player.playVideo();
+        player.setPlaybackRate(1.0);
+        //player.playVideo();
       }
       function myFunction3() {
         player.setPlaybackRate(1.5);
@@ -180,7 +180,7 @@
               captionScroll(val_id);
             }
           }
-          
+
         }
       }, 500);
 
@@ -239,14 +239,14 @@
   <div id="status">here!
   </div>
   <div>
-    <button onclick="mypause()" accesskey="p">pause</button>
-    <button onclick="mystart()" accesskey="e">play</button>
-    <button onclick="playById(current_caption-1)" accesskey="<">이전</button>
-    <button onclick="playById(current_caption)" accesskey="r">다시</button>
-    <button onclick="playById(current_caption+1)" accesskey=">">다음</button>
-    <button onclick="myFunction3()" accesskey="c">빨리</button>
-    <button onclick="myFunction4()" accesskey="d">느리게</button>
-    <button onclick="getcaptions()" accesskey="s">자막조회</button>
+    <button onclick="mypause()" accesskey="p">pause(ALT-p)</button>
+    <button onclick="mystart()" accesskey="o">play(ALT-o)</button>
+    <button onclick="playById(current_caption-1)" accesskey="h">이전(ALT-h)</button>
+    <button onclick="playById(current_caption)" accesskey="r">다시(ALT-r)</button>
+    <button onclick="playById(current_caption+1)" accesskey="l">다음(ALT-l)</button>
+    <button onclick="myFunction3()" accesskey="c">빨리(ALT-c)</button>
+    <button onclick="myFunction4()" accesskey="v">느리게(ALT-v)</button>
+    <button onclick="myFunction2()" accesskey="n">원래속도(ALT-n)</button>
   </div>
   <div id="caption">
     <nav id="nav-cap">
