@@ -6,6 +6,7 @@ from flask_appbuilder.api import BaseApi, expose, protect
 from .models import UTubeContentMaster, ContentMaster, TestTable, EcamFile, Program
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
+from .queries import selectRow
 
 import os
 import re
@@ -47,7 +48,7 @@ def update_stream_info(mapper, connection, target):
 class UTubeContentMasterView(ModelView):
     datamodel = SQLAInterface(UTubeContentMaster)
     list_title = 'YouTube Contents'
-    list_columns = ['content_description','content_url','play_from','play_to','create_on']
+    list_columns = ['show_html','content_description','content_url','play_from','play_to','create_on']
     #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
@@ -179,7 +180,27 @@ class UserManager(BaseApi):
                   , last_login  = g.user.last_login)
         
         return jsonify(resp), 201
-        
+
+class UTubeContent(BaseApi):
+
+    route_base = '/utube'
+
+    @expose('/view/<id>', methods=['GET'])
+    @has_access
+    def view(self, id=None):
+
+      row, _ = selectRow('utube_content_master',{'id':int(id)})
+
+      if row:
+        return render_template('utube_show.html',\
+                content_url = row.content_url,
+                play_from   = row.play_from,
+                play_to     = row.play_to,
+                content_description = row.content_description,
+                base_template=appbuilder.base_template,
+                appbuilder=appbuilder,
+          )
+
 class ContentsManager(BaseApi):
     
     resource_name = 'contents'
@@ -369,3 +390,4 @@ appbuilder.add_api(UserManager)
 appbuilder.add_api(ContentMasterApi)
 appbuilder.add_api(ProgramApi)
 appbuilder.add_api(ContentsInfo)
+appbuilder.add_api(UTubeContent)

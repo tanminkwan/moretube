@@ -28,6 +28,9 @@ class UTubeContentMaster(Model):
     
     UniqueConstraint(content_url)
 
+    def show_html(self):
+        return Markup('<a href="/utube/view/'+str(self.id)+'">VIEW</a>')
+
 class ContentMaster(Model):
 
     __tablename__ = "content_master"

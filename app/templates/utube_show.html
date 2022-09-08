@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+{% extends "appbuilder/base.html" %}
+{% import 'appbuilder/general/lib.html' as lib %}
+{% block content %}
   <style>
-    nav ul{height:300px; width:80%;}
-    nav ul{overflow:hidden; overflow-y:scroll;}
+    #nav-cap ul{height:300px; width:80%;}
+    #nav-cap ul{overflow:hidden; overflow-y:scroll;}
     :root {
       --default-line-height: 22px;
     }
-    ul {
+    #caption-ul {
       background-color: lightblue;
       height: var(--default-line-height);
       list-style-type: none;
@@ -15,31 +15,23 @@
       outline: 1px solid black;
       scroll-snap-type: y mandatory;
     }
-    li {
+    .caption-li {
       font-size: 17px;
       line-height: var(--default-line-height);
       scroll-snap-align: start;
       scroll-snap-stop: normal;
     }
   </style>
-  <body>
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     <div>
-      <input id="youtubeid" type="text">
-      <input id="getyoutube" type="button" value="Get Contents"> 
+      <h3>{{content_description}}</h3>
     </div>
     <div id="player"></div>
 
     <script>
 
-      var youtubeid = "";
-      $( "#getyoutube" ).click(function() {
-        if($("#youtubeid").val() != ""){
-          youtubeid = $("#youtubeid").val();
-          getContents();
-          //alert(youtubeid);
-        }
-      });
+      var youtubeid = "{{content_url}}";
+
       // 2. This code loads the IFrame Player API code asynchronously.
       var tag = document.createElement('script');
 
@@ -54,16 +46,17 @@
         player = new YT.Player('player', {
           height: '360',
           width: '640',
-          //videoId: 'M7lc1UVf-VE',
-          playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'fs':0, 'rel':0, 'start':300, 'modestbranding':1},
+          videoId: youtubeid,
+          //playerVars: { 'autoplay': 1, 'start':300, 'end':310, 'modestbranding':1},
+          playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs':0, 'rel':0, 'start':{{play_from}}, 'modestbranding':1},
           events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
           }
-        });
+      });
+
       }
 
-      
       // 4. The API will call this function when the video player is ready.
       function onPlayerReady(event) {
         event.target.playVideo();
@@ -135,32 +128,6 @@
 
       let captions = [];
       var current_caption = 0;
-
-      $.ajax({
-          type: "GET",
-          url: "/api/v1/mytube/caption/" + youtubeid
-        }).done(function (response) {
-            //captions = jQuery.parseJSON(response);
-            captions = response;
-            //console.log(captions)
-            $("#caption-ul").empty();
-            $(response).each(function(i,val)
-            {
-              var line = ""+i+" start:"+val.start+" end:"+val.end+" text:"+val.text;
-              //console.log(val.duration)
-              //$.each(val,function(key,val)
-              //{
-              //  line = line + key + ": " + val + " "; 
-                //console.log(key + " : " + val);     
-              //});
-              $("#caption-ul").append('<li id="li-'+ i +'">'+ line +"</li>");
-              //console.log(i + " : " + val);
-
-            });
-        }).fail(function (response) {
-            console.log();
-      });
-
       function getcaptions() {
 
         $.ajax({
@@ -180,7 +147,7 @@
               //  line = line + key + ": " + val + " "; 
                 //console.log(key + " : " + val);     
               //});
-              $("#caption-ul").append('<li id="li-'+ i +'">'+ line +"</li>");
+              $("#caption-ul").append('<li class="caption-li" id="li-'+ i +'">'+ line +"</li>");
               //console.log(i + " : " + val);
 
             });
@@ -190,7 +157,7 @@
 
         //console.log(captions)
       }
-      
+      getcaptions();
       // Update the count down every 1 second
       var x = setInterval(function() {
         var ct = player.getCurrentTime();
@@ -213,6 +180,7 @@
               captionScroll(val_id);
             }
           }
+          
         }
       }, 500);
 
@@ -281,11 +249,10 @@
     <button onclick="getcaptions()" accesskey="s">자막조회</button>
   </div>
   <div id="caption">
-    <nav>
+    <nav id="nav-cap">
       <ul id="caption-ul">
           <li>Link 1</li>
       </ul>
     </nav>
   </div>
-  </body>
-</html>
+{% endblock %}
