@@ -3,7 +3,7 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import BaseView, ModelView, ModelRestApi, has_access
 from flask_appbuilder.filemanager import FileManager, uuid_namegen
 from flask_appbuilder.api import BaseApi, expose, protect
-from .models import ContentMaster, TestTable, EcamFile, Program
+from .models import UTubeContentMaster, ContentMaster, TestTable, EcamFile, Program
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
 
@@ -43,6 +43,14 @@ from youtube_transcript_api import YouTubeTranscriptApi
 def update_stream_info(mapper, connection, target):
     
     job_create_job(target)
+
+class UTubeContentMasterView(ModelView):
+    datamodel = SQLAInterface(UTubeContentMaster)
+    list_title = 'YouTube Contents'
+    list_columns = ['content_description','content_url','play_from','play_to','create_on']
+    #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
+    edit_exclude_columns = ['id','create_on']
+    add_exclude_columns = ['id','create_on']
 
 class TestTableView(ModelView):
     datamodel = SQLAInterface(TestTable)
@@ -347,6 +355,12 @@ appbuilder.add_view(
     "File Up/Down",
     icon = "fa-folder-open-o",
     category = "TEST MENU"
+)
+appbuilder.add_view(
+    UTubeContentMasterView,
+    "YouTube Contents",
+    icon = "fa-folder-open-o",
+    category = "Contents"
 )
 appbuilder.add_view_no_menu(TestStream, "stream")
 #appbuilder.add_api(TestTableApi)

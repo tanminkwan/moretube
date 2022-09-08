@@ -1,10 +1,10 @@
 from flask import Markup, url_for
 from flask_appbuilder import Model
 from flask_appbuilder.models.mixins import FileColumn
-from sqlalchemy import Table, Column, Integer, String, Text, ForeignKey, DateTime, Enum, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, Float, String, Text, ForeignKey, DateTime, Enum, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .common import get_user, get_hostname, get_thumbnailpath, YnEnum
+from .common import get_user, get_now, get_hostname, get_thumbnailpath, YnEnum
 from . import app
 
 """
@@ -14,6 +14,19 @@ You can use the extra Flask-AppBuilder fields and Mixin's
 AuditMixin will add automatic timestamp of created and modified by who
 
 """
+class UTubeContentMaster(Model):
+    __tablename__ = "utube_content_master"
+    __table_args__ = {"comment":"Youtube Content 정보"}
+    
+    id = Column(Integer, primary_key=True)
+    content_url  = Column(String(100), nullable=False, comment='YouTube Contents URL')
+    play_from    = Column(Float(precision=2), nullable=False, comment='')
+    play_to      = Column(Float(precision=2), nullable=False, comment='')
+    content_description  = Column(String(500), nullable=True, comment='설명')
+    user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
+    create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
+    
+    UniqueConstraint(content_url)
 
 class ContentMaster(Model):
 
