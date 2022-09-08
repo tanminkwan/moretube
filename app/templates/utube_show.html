@@ -202,7 +202,11 @@
             $("#caption-ul").empty();
             $(response).each(function(i,val)
             {
-              var line = ""+i+" : "+val.start+" ~ "+val.end+" "+val.text;
+              var start = (Math.round(val.start * 10) / 10);
+              var end   = (Math.round(val.end * 10) / 10);
+              
+              var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
+              
               //console.log(val.duration)
               //$.each(val,function(key,val)
               //{
