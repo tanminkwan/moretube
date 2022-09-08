@@ -43,7 +43,7 @@
     <script>
 
       let playMode = 1;
-      let youtubeid = "{{content_url}}";
+      let youtubeid = "{{content_id}}";
       let captions = [];
       let current_caption = 0;
 
@@ -102,7 +102,9 @@
       //    the player should play for six seconds and then stop.
       var done = false;
       function onPlayerStateChange(event) {
-        console.log("done : "+done)
+        if (event.data != YT.PlayerState.PLAYING) {
+          event.target.setPlaybackQuality('small');  // <-- WORKS!
+        }
         //if (event.data == YT.PlayerState.PLAYING && !done) {
         //  setTimeout(stopVideo, 6000);
         //  done = true;
@@ -110,7 +112,7 @@
         //document.getElementById('status').html(event.data);
         document.getElementById('status').innerHTML = "status : "+getStatus(event.data);
         document.getElementById('quality').innerHTML = "quality : "+player.getPlaybackQuality()
-        console.log(event.data);
+        
       }
       function stopVideo() {
         player.stopVideo();

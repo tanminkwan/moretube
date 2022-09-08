@@ -19,14 +19,14 @@ class UTubeContentMaster(Model):
     __table_args__ = {"comment":"Youtube Content 정보"}
     
     id = Column(Integer, primary_key=True)
-    content_url  = Column(String(100), nullable=False, comment='YouTube Contents URL')
-    play_from    = Column(Float(precision=2), nullable=False, comment='')
-    play_to      = Column(Float(precision=2), nullable=False, comment='')
+    content_id  = Column(String(100), nullable=False, comment='YouTube Contents URL')
+    play_from    = Column(Integer, nullable=False, comment='')
+    play_to      = Column(Integer, nullable=False, comment='')
     content_description  = Column(String(500), nullable=True, comment='설명')
     user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
     create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
     
-    UniqueConstraint(content_url)
+    UniqueConstraint(content_id)
 
     def show_html(self):
         return Markup('<a href="/utube/view/'+str(self.id)+'">VIEW</a>')
