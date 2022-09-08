@@ -381,7 +381,8 @@ appbuilder.add_view(
     UTubeContentMasterView,
     "YouTube Contents",
     icon = "fa-folder-open-o",
-    category = "Contents"
+    category = "Contents",
+    category_icon = "fa-envelope"
 )
 appbuilder.add_view_no_menu(TestStream, "stream")
 #appbuilder.add_api(TestTableApi)

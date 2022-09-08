@@ -42,10 +42,13 @@
       // 3. This function creates an <iframe> (and YouTube player)
       //    after the API code downloads.
       var player;
+      let pWidth = $( document ).width() <= 640 ? $( document ).width() : 640;
+      let pHeight = Math.round(( pWidth * 3 ) / 4);
+      
       function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
-          height: '360',
-          width: '640',
+          height: pHeight,
+          width: pWidth,
           videoId: youtubeid,
           //playerVars: { 'autoplay': 1, 'start':300, 'end':310, 'modestbranding':1},
           playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs':0, 'rel':0, 'start':{{play_from}}, 'modestbranding':1},
@@ -73,13 +76,37 @@
         //  done = true;
         //}
         //document.getElementById('status').html(event.data);
-        document.getElementById('status').innerHTML = event.data;
-        document.getElementById('quality').innerHTML = player.getPlaybackQuality()
+        document.getElementById('status').innerHTML = "status : "+getStatus(event.data);
+        document.getElementById('quality').innerHTML = "quality : "+player.getPlaybackQuality()
         console.log(event.data);
       }
       function stopVideo() {
         player.stopVideo();
       }
+      function getStatus(status){
+        let rtn;
+        switch (status) {
+          case -1:
+            rtn = "unstarted";
+            break;
+          case 0:
+            rtn = "ended";
+            break;
+          case 1:
+            rtn = "playing";
+            break;
+          case 2:
+            rtn = "paused";
+            break;
+          case 3:
+            rtn = "buffering";
+            break;
+          case 5:
+            rtn = "video cued";
+        }
+        return rtn;
+      }
+
       function myFunction1() {
         player.seekTo(100.5, true);
         player.playVideo();
@@ -100,7 +127,7 @@
         player.destroy();
         player = new YT.Player('player', {
           height: '360',
-          width: '640',
+          width: pWidth,
           videoId: youtubeid,
           //playerVars: { 'autoplay': 1, 'start':300, 'end':310, 'modestbranding':1},
           playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs':0, 'rel':0, 'start':300, 'modestbranding':1},
@@ -140,7 +167,7 @@
             $("#caption-ul").empty();
             $(response).each(function(i,val)
             {
-              var line = ""+i+" start:"+val.start+" end:"+val.end+" text:"+val.text;
+              var line = ""+i+" : "+val.start+" ~ "+val.end+" "+val.text;
               //console.log(val.duration)
               //$.each(val,function(key,val)
               //{
@@ -161,7 +188,8 @@
       // Update the count down every 1 second
       var x = setInterval(function() {
         var ct = player.getCurrentTime();
-        document.getElementById('time').innerHTML = "경과시간 : " + ct;
+        var ct2 = Math.round(ct * 100) / 100
+        document.getElementById('time').innerHTML = "경과시간 : " + ct2;
         if(captions.length==0){
         }else{
           //var val = captions.filter(function(e){
