@@ -45,6 +45,8 @@
       let playMode = 1;
       let youtubeid = "{{content_id}}";
       let captions = [];
+      let captions_new = [];
+      
       let current_caption = 0;
 
       $(document).ready(function () {
@@ -88,10 +90,83 @@
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
           }
-      });
+        });
 
       }
 
+      function findItem(list, start, end, time) {
+        //var len    = list.length;
+        var median = Math.floor((end + start)/2)
+        var item   = list[median];
+        
+        if(item.start >= time){
+          return findItem(list, start, median, time), 0;
+        }else if(item.end < time){
+          return findItem(list, median, end, time), 0;
+        }else{
+          return item, median;
+        }
+         
+      }
+
+      function getSection(time) {
+        var item, inx = findItem(captions_new, 0, captions_new.length, time);
+        return item, inx;
+      }
+
+      function mergeCaptions() {
+
+      }
+
+      /*
+      function splitCaption() {
+
+        if (event.data == YT.PlayerState.PAUSED) {
+
+          val currentTime = player.getCurrentTime();
+          var current_item, inx = getSection(currentTime);
+          var new_item = current_item;
+
+          current_item.end = currentTime;
+          new_item.start = currentTime;
+
+          updateItem(inx, current_item);
+          insertItem(inx, new_item);
+
+        }else{
+
+        }
+
+      }
+      */
+      function updateItem(index, item){
+        captions_new[index].start = item.start;
+        captions_new[index].end   = item.end;
+        captions_new[index].text  = item.text;        
+      }
+
+      function insertItem(index, item){
+        captions_new.splice(index, 0, new_item);
+      }
+
+      function moveEnd(id, time) {
+
+        captions_new[id].end += time;
+        if(id!=captions_new.length-1){
+          captions_new[id+1].start += time;
+        }
+        
+      }
+
+      function moveStart(id, time) {
+
+        captions_new[id].start += time;
+        if(id!=0){
+          captions_new[id-1].end += time;
+        }
+
+      }
+      
       // 4. The API will call this function when the video player is ready.
       function onPlayerReady(event) {
         event.target.playVideo();
@@ -117,6 +192,7 @@
       function stopVideo() {
         player.stopVideo();
       }
+
       function getStatus(status){
         let rtn;
         switch (status) {
