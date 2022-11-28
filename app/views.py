@@ -48,7 +48,7 @@ def update_stream_info(mapper, connection, target):
 class UTubeContentMasterView(ModelView):
     datamodel = SQLAInterface(UTubeContentMaster)
     list_title = 'YouTube Contents'
-    list_columns = ['show_html','content_description','content_url','play_from','play_to','create_on']
+    list_columns = ['show_html','content_description','content_id','play_from','play_to','create_on']
     #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
@@ -121,9 +121,11 @@ class ContentsInfo(BaseApi):
     @expose('/caption/<id>', methods=['GET'])
     @has_access
     def getCaption(self, id):
+      
       jlist = YouTubeTranscriptApi.get_transcript(id, languages=['en'])
-      data = [ j | {'id':i,'end':round(j['start']+j['duration'],2)} for i, j in enumerate(jlist)]
-      print(data)
+      #data = [ j | {'id':i,'end':round(j['start']+j['duration'],2)} for i, j in enumerate(jlist)]
+      data = [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
+      
       return jsonify(data)
   
 class UserManager(BaseApi):
@@ -193,7 +195,7 @@ class UTubeContent(BaseApi):
 
       if row:
         return render_template('utube_show.html',\
-                content_url = row.content_url,
+                content_id  = row.content_id,
                 play_from   = row.play_from,
                 play_to     = row.play_to,
                 content_description = row.content_description,
@@ -381,7 +383,8 @@ appbuilder.add_view(
     UTubeContentMasterView,
     "YouTube Contents",
     icon = "fa-folder-open-o",
-    category = "Contents"
+    category = "Contents",
+    category_icon = "fa-envelope"
 )
 appbuilder.add_view_no_menu(TestStream, "stream")
 #appbuilder.add_api(TestTableApi)

@@ -1,6 +1,8 @@
 {% extends "appbuilder/base.html" %}
 {% import 'appbuilder/general/lib.html' as lib %}
 {% block content %}
+<link rel="stylesheet" href="/static/css/toggle.css" />
+<script src="/static/js/toggle.js"></script>
   <style>
     #nav-cap ul{height:300px; width:80%;}
     #nav-cap ul{overflow:hidden; overflow-y:scroll;}
@@ -21,16 +23,48 @@
       scroll-snap-align: start;
       scroll-snap-stop: normal;
     }
+    .caption-li:hover {
+      background-color: yellow;
+    }
+    .player-info {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
   </style>
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     <div>
       <h3>{{content_description}}</h3>
     </div>
+    <div>
     <div id="player"></div>
+    </div>
 
     <script>
 
-      var youtubeid = "{{content_url}}";
+      let playMode = 1;
+      let youtubeid = "{{content_id}}";
+      let captions = [];
+      let captions_new = [];
+      
+      let current_caption = 0;
+
+      $(document).ready(function () {
+        function toggleValueChanged(selectedValue) {
+          playMode = selectedValue;
+        }
+
+        let opt = [
+          { value: 1, label: "연속재생" },
+          { value: 2, label: "구간재생" },
+        ];
+
+        $("#stopmode").setupToggles({
+          toggleOptions: opt,
+          defaultValue: 1,
+          onSelectedValueChange: toggleValueChanged,
+        });
+      });
 
       // 2. This code loads the IFrame Player API code asynchronously.
       var tag = document.createElement('script');
@@ -42,10 +76,13 @@
       // 3. This function creates an <iframe> (and YouTube player)
       //    after the API code downloads.
       var player;
+      let pWidth = $( document ).width() <= 640 ? $( document ).width() : 640;
+      let pHeight = Math.round(( pWidth * 3 ) / 4);
+      
       function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
-          height: '360',
-          width: '640',
+          height: pHeight,
+          width: pWidth,
           videoId: youtubeid,
           //playerVars: { 'autoplay': 1, 'start':300, 'end':310, 'modestbranding':1},
           playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs':0, 'rel':0, 'start':{{play_from}}, 'modestbranding':1},
@@ -53,10 +90,83 @@
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
           }
-      });
+        });
 
       }
 
+      function findItem(list, start, end, time) {
+        //var len    = list.length;
+        var median = Math.floor((end + start)/2)
+        var item   = list[median];
+        
+        if(item.start >= time){
+          return findItem(list, start, median, time), 0;
+        }else if(item.end < time){
+          return findItem(list, median, end, time), 0;
+        }else{
+          return item, median;
+        }
+         
+      }
+
+      function getSection(time) {
+        var item, inx = findItem(captions_new, 0, captions_new.length, time);
+        return item, inx;
+      }
+
+      function mergeCaptions() {
+
+      }
+
+      /*
+      function splitCaption() {
+
+        if (event.data == YT.PlayerState.PAUSED) {
+
+          val currentTime = player.getCurrentTime();
+          var current_item, inx = getSection(currentTime);
+          var new_item = current_item;
+
+          current_item.end = currentTime;
+          new_item.start = currentTime;
+
+          updateItem(inx, current_item);
+          insertItem(inx, new_item);
+
+        }else{
+
+        }
+
+      }
+      */
+      function updateItem(index, item){
+        captions_new[index].start = item.start;
+        captions_new[index].end   = item.end;
+        captions_new[index].text  = item.text;        
+      }
+
+      function insertItem(index, item){
+        captions_new.splice(index, 0, new_item);
+      }
+
+      function moveEnd(id, time) {
+
+        captions_new[id].end += time;
+        if(id!=captions_new.length-1){
+          captions_new[id+1].start += time;
+        }
+        
+      }
+
+      function moveStart(id, time) {
+
+        captions_new[id].start += time;
+        if(id!=0){
+          captions_new[id-1].end += time;
+        }
+
+      }
+      
       // 4. The API will call this function when the video player is ready.
       function onPlayerReady(event) {
         event.target.playVideo();
@@ -67,40 +177,67 @@
       //    the player should play for six seconds and then stop.
       var done = false;
       function onPlayerStateChange(event) {
-        console.log("done : "+done)
+        if (event.data != YT.PlayerState.PLAYING) {
+          event.target.setPlaybackQuality('small');  // <-- WORKS!
+        }
         //if (event.data == YT.PlayerState.PLAYING && !done) {
         //  setTimeout(stopVideo, 6000);
         //  done = true;
         //}
         //document.getElementById('status').html(event.data);
-        document.getElementById('status').innerHTML = event.data;
-        document.getElementById('quality').innerHTML = player.getPlaybackQuality()
-        console.log(event.data);
+        document.getElementById('status').innerHTML = "status : "+getStatus(event.data);
+        document.getElementById('quality').innerHTML = "quality : "+player.getPlaybackQuality()
+        
       }
       function stopVideo() {
         player.stopVideo();
       }
+
+      function getStatus(status){
+        let rtn;
+        switch (status) {
+          case -1:
+            rtn = "unstarted";
+            break;
+          case 0:
+            rtn = "ended";
+            break;
+          case 1:
+            rtn = "playing";
+            break;
+          case 2:
+            rtn = "paused";
+            break;
+          case 3:
+            rtn = "buffering";
+            break;
+          case 5:
+            rtn = "video cued";
+        }
+        return rtn;
+      }
+
       function myFunction1() {
         player.seekTo(100.5, true);
         player.playVideo();
       }
       function myFunction2() {
-        player.seekTo(100, true);
-        player.playVideo();
+        player.setPlaybackRate(1.0);
+        //player.playVideo();
       }
       function myFunction3() {
-        player.setPlaybackRate(1.5);
+        player.setPlaybackRate(1.25);
         //player.playVideo();
       }
       function myFunction4() {
-        player.setPlaybackRate(0.5);
+        player.setPlaybackRate(0.75);
         //player.playVideo();
       }
       function getContents() {
         player.destroy();
         player = new YT.Player('player', {
           height: '360',
-          width: '640',
+          width: pWidth,
           videoId: youtubeid,
           //playerVars: { 'autoplay': 1, 'start':300, 'end':310, 'modestbranding':1},
           playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs':0, 'rel':0, 'start':300, 'modestbranding':1},
@@ -121,13 +258,16 @@
       
       function playById(id){
         
+        if(playMode==2){
+          current_caption=id
+          captionScroll(current_caption);
+        }
+
         player.seekTo(captions[id].start , true);
         player.playVideo();
 
       }
 
-      let captions = [];
-      var current_caption = 0;
       function getcaptions() {
 
         $.ajax({
@@ -140,7 +280,11 @@
             $("#caption-ul").empty();
             $(response).each(function(i,val)
             {
-              var line = ""+i+" start:"+val.start+" end:"+val.end+" text:"+val.text;
+              var start = (Math.round(val.start * 10) / 10);
+              var end   = (Math.round(val.end * 10) / 10);
+              
+              var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
+              
               //console.log(val.duration)
               //$.each(val,function(key,val)
               //{
@@ -161,7 +305,8 @@
       // Update the count down every 1 second
       var x = setInterval(function() {
         var ct = player.getCurrentTime();
-        document.getElementById('time').innerHTML = "경과시간 : " + ct;
+        var ct2 = Math.round(ct * 100) / 100
+        document.getElementById('time').innerHTML = "경과시간 : " + ct2;
         if(captions.length==0){
         }else{
           //var val = captions.filter(function(e){
@@ -170,19 +315,30 @@
           //})
           //console.log("val : "+binarySearch(captions, ct))
           document.getElementById('current').innerHTML = "길이 : " + captions.length + " ID : " + current_caption;
-          if(captions[current_caption].start < ct && captions[current_caption].end > ct){
 
-          }else{
-            var val_id = musicSearch(captions, ct);
-            if(val_id>=0){
-              current_caption = val_id
-              //console.log("val_id:"+val_id);
-              captionScroll(val_id);
-            }
-          }
+          if(playMode==1){
           
+            if(captions[current_caption].start < ct && captions[current_caption].end > ct){
+
+            }else{
+              var val_id = musicSearch(captions, ct);
+              if(val_id>=0){
+                current_caption = val_id
+                captionScroll(val_id);
+              }
+            }
+          }else if (playMode==2) {
+
+            if(captions[current_caption].end < ct){
+              mypause();
+            }
+            
+          } else {
+            
+          }
+
         }
-      }, 500);
+      }, 300);
 
       function captionScroll(x) {
         //$('#caption-ul').scrollTop($('#caption-ul li:eq('+x+')').offset().top);
@@ -233,20 +389,27 @@
       }
 
     </script>
-  <div id="time"></div>
-  <div id="quality"></div>
-  <div id="current"></div>
-  <div id="status">here!
+  <div id="stopmode" class="selectGroup"></div>
+  <br><br>
+  <div>
+    <table>
+      <tr>
+        <th class="player-info" id="time"></th>
+        <th class="player-info" id="quality"></th>
+        <th class="player-info" id="current"></th>
+        <th class="player-info" id="status"></th>
+      </tr>
+    </table>
   </div>
   <div>
-    <button onclick="mypause()" accesskey="p">pause</button>
-    <button onclick="mystart()" accesskey="e">play</button>
-    <button onclick="playById(current_caption-1)" accesskey="<">이전</button>
-    <button onclick="playById(current_caption)" accesskey="r">다시</button>
-    <button onclick="playById(current_caption+1)" accesskey=">">다음</button>
-    <button onclick="myFunction3()" accesskey="c">빨리</button>
-    <button onclick="myFunction4()" accesskey="d">느리게</button>
-    <button onclick="getcaptions()" accesskey="s">자막조회</button>
+    <button onclick="mypause()" accesskey="p">pause(ALT-p)</button>
+    <button onclick="mystart()" accesskey="o">play(ALT-o)</button>
+    <button onclick="playById(current_caption-1)" accesskey="h">이전(ALT-h)</button>
+    <button onclick="playById(current_caption)" accesskey="r">다시(ALT-r)</button>
+    <button onclick="playById(current_caption+1)" accesskey="l">다음(ALT-l)</button>
+    <button onclick="myFunction3()" accesskey="c">빨리(ALT-c)</button>
+    <button onclick="myFunction4()" accesskey="v">느리게(ALT-v)</button>
+    <button onclick="myFunction2()" accesskey="n">원래속도(ALT-n)</button>
   </div>
   <div id="caption">
     <nav id="nav-cap">
