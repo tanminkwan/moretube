@@ -4,21 +4,22 @@
 <link rel="stylesheet" href="/static/css/toggle.css" />
 <script src="/static/js/toggle.js"></script>
   <style>
-    #nav-cap ul{height:300px; width:80%;}
+    #nav-cap ul{height:300px; width:100%;}
     #nav-cap ul{overflow:hidden; overflow-y:scroll;}
     :root {
-      --default-line-height: 22px;
+      --default-line-height: 20px;
     }
     #caption-ul {
-      background-color: lightblue;
+      background-color: rgb(247, 229, 229);
       height: var(--default-line-height);
       list-style-type: none;
+      padding-left: 0;
       overflow-y: scroll;
       outline: 1px solid black;
       scroll-snap-type: y mandatory;
     }
     .caption-li {
-      font-size: 17px;
+      font-size: 16px;
       line-height: var(--default-line-height);
       scroll-snap-align: start;
       scroll-snap-stop: normal;
@@ -30,6 +31,10 @@
       border: 1px solid #dddddd;
       text-align: left;
       padding: 8px;
+    }
+    table, th, td {
+      border:1px solid black;
+      border-collapse: collapse;
     }
   </style>
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
@@ -225,11 +230,11 @@
         player.setPlaybackRate(1.0);
         //player.playVideo();
       }
-      function myFunction3() {
+      function myFast() {
         player.setPlaybackRate(1.25);
         //player.playVideo();
       }
-      function myFunction4() {
+      function mySlow() {
         player.setPlaybackRate(0.75);
         //player.playVideo();
       }
@@ -301,6 +306,7 @@
 
         //console.log(captions)
       }
+
       getcaptions();
       // Update the count down every 1 second
       var x = setInterval(function() {
@@ -327,6 +333,7 @@
                 captionScroll(val_id);
               }
             }
+
           }else if (playMode==2) {
 
             if(captions[current_caption].end < ct){
@@ -338,6 +345,7 @@
           }
 
         }
+
       }, 300);
 
       function captionScroll(x) {
@@ -407,8 +415,8 @@
     <button onclick="playById(current_caption-1)" accesskey="h">이전(ALT-h)</button>
     <button onclick="playById(current_caption)" accesskey="r">다시(ALT-r)</button>
     <button onclick="playById(current_caption+1)" accesskey="l">다음(ALT-l)</button>
-    <button onclick="myFunction3()" accesskey="c">빨리(ALT-c)</button>
-    <button onclick="myFunction4()" accesskey="v">느리게(ALT-v)</button>
+    <button onclick="myFast()" accesskey="c">빨리(ALT-c)</button>
+    <button onclick="mySlow()" accesskey="v">느리게(ALT-v)</button>
     <button onclick="myFunction2()" accesskey="n">원래속도(ALT-n)</button>
   </div>
   <div id="caption">
