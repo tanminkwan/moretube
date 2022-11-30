@@ -8,9 +8,11 @@ from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
 from .queries import selectRow
 
+from io import BytesIO
 import os
 import re
 import json
+import yaml
 from youtube_transcript_api import YouTubeTranscriptApi
 
 """
@@ -127,6 +129,22 @@ class ContentsInfo(BaseApi):
       data = [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
       
       return jsonify(data)
+
+    @expose('/caption_yaml/<id>', methods=['GET'])
+    @has_access
+    def getCaptionYaml(self, id):
+      
+      jlist = YouTubeTranscriptApi.get_transcript(id, languages=['en'])
+      #data = [ j | {'id':i,'end':round(j['start']+j['duration'],2)} for i, j in enumerate(jlist)]
+      data = [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
+      
+      data_y = yaml.dump(data)
+      
+      data_s = str(data_y)
+      output = BytesIO(bytes(data_s,'utf-8'))
+      output.seek(0)
+
+      return send_file(output, attachment_filename=id+'_test.yaml', as_attachment=True)    
   
 class UserManager(BaseApi):
     

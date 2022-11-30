@@ -4,6 +4,38 @@
 <link rel="stylesheet" href="/static/css/toggle.css" />
 <script src="/static/js/toggle.js"></script>
   <style>
+    .column0 {
+      color: red;
+      float:left;
+      font-size: 11px;
+      width: 9%;
+      padding: 4px;
+      text-align: right;
+      /* height: 300px; Should be removed. Only for demonstration */
+    }
+    .column1 {
+      color: green;
+      float:left;
+      font-size: 11px;
+      width: 12%;
+      padding: 3px;
+      text-align: center;
+      /* height: 300px; Should be removed. Only for demonstration */
+    }
+    .column2 {
+      float: left;
+      width: 79%;
+      padding: 4px;
+      /* height: 300px; Should be removed. Only for demonstration */
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
     #nav-cap ul{height:300px; width:100%;}
     #nav-cap ul{overflow:hidden; overflow-y:scroll;}
     :root {
@@ -39,7 +71,7 @@
   </style>
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     <div>
-      <h3>{{content_description}}</h3>
+      <h4>{{content_description}}</h4>
     </div>
     <div>
     <div id="player"></div>
@@ -97,6 +129,27 @@
           }
         });
 
+      }
+
+      function fancyTimeFormat(duration)
+      {   
+          // Hours, minutes and seconds
+          var hrs = ~~(duration / 3600);
+          var mins = ~~((duration % 3600) / 60);
+          var secs = ~~duration % 60;
+          var dat  = Math.round((duration % 1) * 10);
+
+          // Output like "1:01" or "4:03:59" or "123:03:59"
+          var ret = "";
+
+          if (hrs > 0) {
+              ret += "" + hrs + ":" + (mins < 10 ? "0" : "");
+          }
+
+          ret += "" + mins + ":" + (secs < 10 ? "0" : "");
+          ret += "" + secs;
+          ret += "." + dat
+          return ret;
       }
 
       function findItem(list, start, end, time) {
@@ -190,7 +243,7 @@
         //  done = true;
         //}
         //document.getElementById('status').html(event.data);
-        document.getElementById('status').innerHTML = "status : "+getStatus(event.data);
+        document.getElementById('status').innerHTML = getStatus(event.data);
         document.getElementById('quality').innerHTML = "quality : "+player.getPlaybackQuality()
         
       }
@@ -288,7 +341,8 @@
               var start = (Math.round(val.start * 10) / 10);
               var end   = (Math.round(val.end * 10) / 10);
               
-              var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
+              //var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
+              var line = '<div class="row" ondblclick="playById('+""+i+')"><div class="column0">'+""+i+'</div><div class="column1">'+"~ "+fancyTimeFormat(end)+'</div><div class="column2">'+val.text+'</div></div>';
               
               //console.log(val.duration)
               //$.each(val,function(key,val)
@@ -312,7 +366,7 @@
       var x = setInterval(function() {
         var ct = player.getCurrentTime();
         var ct2 = Math.round(ct * 100) / 100
-        document.getElementById('time').innerHTML = "경과시간 : " + ct2;
+        document.getElementById('time').innerHTML = "sec : " + ct2;
         if(captions.length==0){
         }else{
           //var val = captions.filter(function(e){
@@ -320,7 +374,7 @@
             //return e.start < ct && e.end >= ct;
           //})
           //console.log("val : "+binarySearch(captions, ct))
-          document.getElementById('current').innerHTML = "길이 : " + captions.length + " ID : " + current_caption;
+          document.getElementById('current').innerHTML = "pos : " + current_caption + " / " + captions.length;
 
           if(playMode==1){
           
