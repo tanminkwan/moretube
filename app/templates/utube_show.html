@@ -88,6 +88,8 @@
 
     <script>
 
+      var flag = 1;
+
       let playMode = 1;
       let youtubeid = "{{content_id}}";
       let captions = [];
@@ -246,6 +248,11 @@
       function onPlayerStateChange(event) {
         if (event.data != YT.PlayerState.PLAYING) {
           event.target.setPlaybackQuality('small');  // <-- WORKS!
+          document.getElementById("toggleDiv").innerHTML = 'Play  (q)';
+          flag=1;
+        }else{
+          document.getElementById("toggleDiv").innerHTML = 'Pause(q)';
+          flag=0;
         }
         //if (event.data == YT.PlayerState.PLAYING && !done) {
         //  setTimeout(stopVideo, 6000);
@@ -256,6 +263,7 @@
         document.getElementById('quality').innerHTML = "qual : "+player.getPlaybackQuality()
         
       }
+
       function stopVideo() {
         player.stopVideo();
       }
@@ -395,7 +403,7 @@
       getcaptions();
       // Update the count down every 1 second
       var x = setInterval(function() {
-        var ct = player.getCurrentTime();
+        var ct = !player.getCurrentTime ? 0.0 : player.getCurrentTime();
         var ct2 = Math.round(ct * 100) / 100
         document.getElementById('time').innerHTML = "sec : " + ct2;
         if(captions.length==0){
@@ -481,17 +489,16 @@
         return rtn;
       }
 
-      var flag = 1;
       function mytoggle(){
         if(flag==0){
-            document.getElementById("toggleDiv").innerHTML = 'Play  (q)';
+            //document.getElementById("toggleDiv").innerHTML = 'Play  (q)';
             mypause()
-            flag=1;
+            //flag=1;
         }
         else if(flag==1){
-            document.getElementById("toggleDiv").innerHTML = 'Pause(q)';
+            //document.getElementById("toggleDiv").innerHTML = 'Pause(q)';
             mystart()
-            flag=0;
+            //flag=0;
         }
       }
     </script>
