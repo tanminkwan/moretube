@@ -1,8 +1,10 @@
 from flask import Markup, url_for
 from flask_appbuilder import Model
 from flask_appbuilder.models.mixins import FileColumn
-from sqlalchemy import Table, Column, Integer, Float, String, Text, ForeignKey, DateTime, Enum, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, Float, String, Text, ForeignKey\
+    , DateTime, Enum, UniqueConstraint
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 from .common import get_user, get_now, get_hostname, get_thumbnailpath, YnEnum
 from . import app
@@ -15,6 +17,7 @@ AuditMixin will add automatic timestamp of created and modified by who
 
 """
 class UTubeContentMaster(Model):
+
     __tablename__ = "utube_content_master"
     __table_args__ = {"comment":"Youtube Content 정보"}
     
@@ -28,8 +31,34 @@ class UTubeContentMaster(Model):
     
     UniqueConstraint(content_id)
 
+    utube_content_caption = relationship('UTubeContentCaption', back_populates="utube_content_master")
+
+    def __repr__(self) -> str:
+        return '['+ self.content_id +']'+ self.content_description[0:30]
+
     def show_html(self):
         return Markup('<a href="/utube/view/'+str(self.id)+'">VIEW</a>')
+
+class UTubeContentCaption(Model):
+
+    __tablename__ = "utube_content_caption"
+    __table_args__ = {"comment":"Youtube Content 자막 정보"}
+    
+    id = Column(Integer, primary_key=True)
+    caption_id   = Column(String(100), nullable=False, comment='YouTube Contents caption info')
+    content_master_id = Column(Integer, ForeignKey('utube_content_master.id'), nullable=False)
+    captions     = Column(JSONB, comment='자막')
+    picked_yn    = Column(Enum(YnEnum), info={'enum_class':YnEnum}, comment='대표 자막 여부')
+    captions_yaml = Column(Text, comment='자막')
+    user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
+    create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
+
+    UniqueConstraint(caption_id)
+
+    utube_content_master = relationship('UTubeContentMaster', back_populates="utube_content_caption")
+
+    def __repr__(self) -> str:
+        return self.caption_id
 
 class ContentMaster(Model):
 

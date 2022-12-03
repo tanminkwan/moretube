@@ -3,7 +3,8 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import BaseView, ModelView, ModelRestApi, has_access
 from flask_appbuilder.filemanager import FileManager, uuid_namegen
 from flask_appbuilder.api import BaseApi, expose, protect
-from .models import UTubeContentMaster, ContentMaster, TestTable, EcamFile, Program
+from .models import UTubeContentMaster, UTubeContentCaption, ContentMaster, TestTable\
+  , EcamFile, Program
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
 from .queries import selectRow
@@ -42,10 +43,43 @@ from youtube_transcript_api import YouTubeTranscriptApi
         category_icon='fa-envelope'
     )
 """
+def addIdNStart(jlist):
+    return [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
+
+REPMAP = [
+  ('(s(','<span class="w_subject">'),
+  ('(v(','<span class="w_verb">'),
+  ('))','</span>'),
+]
+
+def setDeco(text):
+    for tup in REPMAP:
+      text = text.replace(tup[0], tup[1])
+    
+    return text
+    
+def convertYcap2Jcap(ycap):
+    decoed_ycap = setDeco(ycap)
+    jlist =  yaml.safe_load(decoed_ycap)
+    return addIdNStart(jlist)
+
 @db.event.listens_for(ContentMaster, 'after_insert')
 def update_stream_info(mapper, connection, target):
     
     job_create_job(target)
+
+@db.event.listens_for(UTubeContentCaption, 'before_update')
+def update_stream_info(mapper, connection, target):
+    
+    jdata = convertYcap2Jcap(target.captions_yaml)
+    target.captions = {'data':jdata}
+
+    print('UTubeContentCaption update!!')
+
+@db.event.listens_for(UTubeContentCaption, 'before_insert')
+def update_stream_info(mapper, connection, target):
+    
+    print('UTubeContentCaption insert!!')
 
 class UTubeContentMasterView(ModelView):
     datamodel = SQLAInterface(UTubeContentMaster)
@@ -54,6 +88,14 @@ class UTubeContentMasterView(ModelView):
     #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
+
+class UTubeContentCaptionView(ModelView):
+    datamodel = SQLAInterface(UTubeContentCaption)
+    list_title = 'YouTube Content Captions'
+    list_columns = ['utube_content_master','caption_id','picked_yn','create_on']
+    edit_exclude_columns = ['captions','id','create_on']
+    add_exclude_columns = ['captions','id','create_on']
+    search_exclude_columns = ['captions']
 
 class TestTableView(ModelView):
     datamodel = SQLAInterface(TestTable)
@@ -124,9 +166,18 @@ class ContentsInfo(BaseApi):
     @has_access
     def getCaption(self, id):
       
-      jlist = YouTubeTranscriptApi.get_transcript(id, languages=['en'])
-      #data = [ j | {'id':i,'end':round(j['start']+j['duration'],2)} for i, j in enumerate(jlist)]
-      data = [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
+      data = []
+      content, _ = selectRow('utube_content_master',{'content_id':id})
+
+      row, _ = selectRow('utube_content_caption',{'content_master_id':content.id,'picked_yn':'YES'})
+
+      if row:
+        data = row.captions['data']
+        #jlist =  yaml.safe_load(row.captions_yaml)
+        #data = [ j | {'id':i} for i, j in enumerate(jlist)]
+      else:
+        jlist = YouTubeTranscriptApi.get_transcript(id, languages=['en'])
+        data = addIdNStart(jlist)
       
       return jsonify(data)
 
@@ -136,8 +187,13 @@ class ContentsInfo(BaseApi):
       
       jlist = YouTubeTranscriptApi.get_transcript(id, languages=['en'])
       #data = [ j | {'id':i,'end':round(j['start']+j['duration'],2)} for i, j in enumerate(jlist)]
-      data = [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
-      
+      #data = [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
+      #data = [ j | {'text':j['text']} for j in jlist]
+      data = []
+      for j in jlist:
+        del j['duration']
+        data.append(j)
+
       data_y = yaml.dump(data)
       
       data_s = str(data_y)
@@ -400,6 +456,13 @@ appbuilder.add_view(
 appbuilder.add_view(
     UTubeContentMasterView,
     "YouTube Contents",
+    icon = "fa-folder-open-o",
+    category = "Contents",
+    category_icon = "fa-envelope"
+)
+appbuilder.add_view(
+    UTubeContentCaptionView,
+    "Captionss",
     icon = "fa-folder-open-o",
     category = "Contents",
     category_icon = "fa-envelope"

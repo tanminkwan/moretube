@@ -2,8 +2,17 @@
 {% import 'appbuilder/general/lib.html' as lib %}
 {% block content %}
 <link rel="stylesheet" href="/static/css/toggle.css" />
+<link rel="stylesheet" href="/static/css/toastr.css" />
 <script src="/static/js/toggle.js"></script>
+<script src="/static/js/toastr.js"></script>
+<script src="/static/js/tata.js"></script>
   <style>
+    .w_subject {
+      background-color: rgb(183, 234, 247);
+    }
+    .w_verb {
+      background-color: rgb(169, 247, 169);
+    }
     .column0 {
       color: red;
       float:left;
@@ -62,11 +71,11 @@
     .player-info {
       border: 1px solid #dddddd;
       text-align: left;
-      padding: 8px;
+      padding: 4px;
     }
     table, th, td {
-      border:1px solid black;
       border-collapse: collapse;
+      padding: 4px;
     }
   </style>
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
@@ -92,8 +101,8 @@
         }
 
         let opt = [
-          { value: 1, label: "연속재생" },
-          { value: 2, label: "구간재생" },
+          { value: 1, label: "연속" },
+          { value: 2, label: "구간" },
         ];
 
         $("#stopmode").setupToggles({
@@ -244,7 +253,7 @@
         //}
         //document.getElementById('status').html(event.data);
         document.getElementById('status').innerHTML = getStatus(event.data);
-        document.getElementById('quality').innerHTML = "quality : "+player.getPlaybackQuality()
+        document.getElementById('quality').innerHTML = "qual : "+player.getPlaybackQuality()
         
       }
       function stopVideo() {
@@ -308,6 +317,9 @@
       }
       function mypause() {
         player.pauseVideo();
+        var ct = player.getCurrentTime();
+        var ct2 = Math.round(ct * 100) / 100
+        document.getElementById('time').innerHTML = "sec : " + ct2;
       }
       function mystart() {
         player.seekTo(player.getCurrentTime() - 0.5, true);        
@@ -323,6 +335,25 @@
 
         player.seekTo(captions[id].start , true);
         player.playVideo();
+
+      }
+
+      function openToast(id){
+        
+        var message = ''
+        var duration = 0
+        if(captions[id].hasOwnProperty('text_c')){
+          message = captions[id].text_c
+          duration = 5000
+        }else{
+          message = '^^'
+          duration = 1000
+        }
+
+        toastr.info('', message, {
+          timeOut: duration,
+          positionClass: "toast-top-center"
+        })
 
       }
 
@@ -342,7 +373,7 @@
               var end   = (Math.round(val.end * 10) / 10);
               
               //var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
-              var line = '<div class="row" ondblclick="playById('+""+i+')"><div class="column0">'+""+i+'</div><div class="column1">'+"~ "+fancyTimeFormat(end)+'</div><div class="column2">'+val.text+'</div></div>';
+              var line = '<div class="row" onclick="openToast('+""+i+')" ondblclick="playById('+""+i+')"><div class="column0">'+""+i+'</div><div class="column1">'+"~ "+fancyTimeFormat(end)+'</div><div class="column2">'+val.text+'</div></div>';
               
               //console.log(val.duration)
               //$.each(val,function(key,val)
@@ -450,28 +481,53 @@
         return rtn;
       }
 
+      var flag = 1;
+      function mytoggle(){
+        if(flag==0){
+            document.getElementById("toggleDiv").innerHTML = 'Play  (q)';
+            mypause()
+            flag=1;
+        }
+        else if(flag==1){
+            document.getElementById("toggleDiv").innerHTML = 'Pause(q)';
+            mystart()
+            flag=0;
+        }
+      }
     </script>
-  <div id="stopmode" class="selectGroup"></div>
-  <br><br>
   <div>
     <table>
       <tr>
+        <th>
+          <div id="stopmode" class="selectGroup"></div>
+        </th>
+        <th>
+          <button onclick="mySlow()" accesskey="v">Slow(v)</button>
+          <button onclick="myFast()" accesskey="c">Fast(c)</button>
+          <button onclick="myFunction2()" accesskey="n">Normal(n)</button>
+        </th>
+      </tr>
+    </table>
+  </div>
+  <div>
+    <table>
+      <tr>
+        <th class="player-info" id="current"></th>
         <th class="player-info" id="time"></th>
         <th class="player-info" id="quality"></th>
-        <th class="player-info" id="current"></th>
         <th class="player-info" id="status"></th>
       </tr>
     </table>
   </div>
   <div>
-    <button onclick="mypause()" accesskey="p">pause(ALT-p)</button>
-    <button onclick="mystart()" accesskey="o">play(ALT-o)</button>
-    <button onclick="playById(current_caption-1)" accesskey="h">이전(ALT-h)</button>
-    <button onclick="playById(current_caption)" accesskey="r">다시(ALT-r)</button>
-    <button onclick="playById(current_caption+1)" accesskey="l">다음(ALT-l)</button>
-    <button onclick="myFast()" accesskey="c">빨리(ALT-c)</button>
-    <button onclick="mySlow()" accesskey="v">느리게(ALT-v)</button>
-    <button onclick="myFunction2()" accesskey="n">원래속도(ALT-n)</button>
+    <table>
+      <tr>
+        <th><button id="toggleDiv" onclick="mytoggle()" accesskey="q">Play (q)</button></th>
+        <th><button onclick="playById(current_caption-1)" accesskey="z">&lt;Prev(z)</button></th>
+        <th><button onclick="playById(current_caption)" accesskey="x">Replay(x)</button></th>
+        <th><button onclick="playById(current_caption+1)" accesskey="c">&gt;Next(c)</button></th>
+      </tr>
+    </table>
   </div>
   <div id="caption">
     <nav id="nav-cap">
