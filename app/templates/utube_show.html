@@ -8,13 +8,30 @@
 <script src="/static/js/tata.js"></script>
   <style>
     .w_subject {
-      background-color: rgb(183, 234, 247);
+      background-color: rgb(196, 236, 247);
     }
     .w_verb {
-      background-color: rgb(169, 247, 169);
+      background-color: rgb(202, 247, 202);
     }
-    .column0 {
+    .p_relative {
+      background-color: rgb(252, 209, 242);
+    }
+    .p_title {
+      color: brown;
+      font-weight: bold;
+    }
+    .column0_1 {
       color: red;
+      float:left;
+      font-weight: bold;
+      font-size: 12px;
+      width: 9%;
+      padding: 4px;
+      text-align: right;
+      /* height: 300px; Should be removed. Only for demonstration */
+    }
+    .column0_2 {
+      color: green;
       float:left;
       font-size: 11px;
       width: 9%;
@@ -353,15 +370,13 @@
         if(captions[id].hasOwnProperty('text_c')){
           message = captions[id].text_c
           duration = 5000
-        }else{
-          message = '^^'
-          duration = 1000
-        }
 
-        toastr.info('', message, {
-          timeOut: duration,
-          positionClass: "toast-top-center"
-        })
+          toastr.info('', message, {
+            timeOut: duration,
+            positionClass: "toast-top-center"
+          })
+
+        }
 
       }
 
@@ -381,8 +396,13 @@
               var end   = (Math.round(val.end * 10) / 10);
               
               //var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
-              var line = '<div class="row" onclick="openToast('+""+i+')" ondblclick="playById('+""+i+')"><div class="column0">'+""+i+'</div><div class="column1">'+"~ "+fancyTimeFormat(end)+'</div><div class="column2">'+val.text+'</div></div>';
-              
+              var line = '<div class="row" ondblclick="playById('+""+i+')">';
+              if(val.hasOwnProperty('text_c')){
+                line += '<div class="column0_1" onclick="openToast('+""+i+')">'
+              }else{
+                line += '<div class="column0_2">'
+              }
+              line += ""+i+'</div><div class="column1">'+"~ "+fancyTimeFormat(end)+'</div><div class="column2">'+val.text+'</div></div>';
               //console.log(val.duration)
               //$.each(val,function(key,val)
               //{

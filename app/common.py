@@ -1,9 +1,12 @@
 from flask import g
+from wtforms.validators import ValidationError
 import enum
 import uuid
 import socket
 from datetime import datetime
 from .queries import selectRow
+import yaml
+import traceback
 
 def get_user():
     return g.user.username
@@ -29,3 +32,19 @@ def get_thumbnailpath(stored_filename):
 class YnEnum(enum.Enum):
     YES = 'YES'
     NO  = 'NO'
+
+class VerifyYaml(object):
+
+    def __init__(self) -> None:
+        pass
+
+    def __call__(self, form, field):
+        
+        if not field.data:
+            raise ValidationError(field.gettext("자막 정보가 공백입니다."))
+
+        try:
+            jlist =  yaml.safe_load(field.data)
+        except yaml.parser.ParserError as e:
+            message = field.gettext('Yaml Parsing Error. ' + traceback.format_exc())
+            raise ValidationError(message)

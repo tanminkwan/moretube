@@ -8,6 +8,7 @@ from .models import UTubeContentMaster, UTubeContentCaption, ContentMaster, Test
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
 from .queries import selectRow
+from .common import VerifyYaml
 
 from io import BytesIO
 import os
@@ -43,25 +44,40 @@ from youtube_transcript_api import YouTubeTranscriptApi
         category_icon='fa-envelope'
     )
 """
-def addIdNStart(jlist):
-    return [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
-
 REPMAP = [
   ('(s(','<span class="w_subject">'),
   ('(v(','<span class="w_verb">'),
+  ('(<(','<span class="p_relative">'),
+  ('(t(','<span class="p_title">'),
   ('))','</span>'),
 ]
 
-def setDeco(text):
+def _setDeco(text):
     for tup in REPMAP:
       text = text.replace(tup[0], tup[1])
     
     return text
     
+def _addEnd(jlist):
+    return [ j | {'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
+
+def _removeEmpty(jlist):
+    return [ j for j in jlist if j.get('text')]
+
+def _addID(jlist):
+    return [ j | {'id':i} for i, j in enumerate(jlist)]
+
+def addIdNStart(jlist):
+
+    jlist2 = _addEnd(jlist)
+    return _addID(jlist2)
+
 def convertYcap2Jcap(ycap):
-    decoed_ycap = setDeco(ycap)
+    decoed_ycap = _setDeco(ycap)
     jlist =  yaml.safe_load(decoed_ycap)
-    return addIdNStart(jlist)
+    jlist2 = _addEnd(jlist)
+    jlist3 =_removeEmpty(jlist2)
+    return _addID(jlist3)
 
 @db.event.listens_for(ContentMaster, 'after_insert')
 def update_stream_info(mapper, connection, target):
@@ -79,12 +95,15 @@ def update_stream_info(mapper, connection, target):
 @db.event.listens_for(UTubeContentCaption, 'before_insert')
 def update_stream_info(mapper, connection, target):
     
+    jdata = convertYcap2Jcap(target.captions_yaml)
+    target.captions = {'data':jdata}
+
     print('UTubeContentCaption insert!!')
 
 class UTubeContentMasterView(ModelView):
     datamodel = SQLAInterface(UTubeContentMaster)
     list_title = 'YouTube Contents'
-    list_columns = ['show_html','content_description','content_id','play_from','play_to','create_on']
+    list_columns = ['show_html','content_description','content_id','download_yaml','play_from','play_to','create_on']
     #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
@@ -96,6 +115,18 @@ class UTubeContentCaptionView(ModelView):
     edit_exclude_columns = ['captions','id','create_on']
     add_exclude_columns = ['captions','id','create_on']
     search_exclude_columns = ['captions']
+
+    label_columns = {
+      'captions_yaml':'자막(yaml type)',
+    }
+
+    description_columns = {
+      'captions_yaml':'yaml 형식을 준수하세요.',
+    }
+
+    validators_columns = {
+      'captions_yaml':[VerifyYaml()],
+    }
 
 class TestTableView(ModelView):
     datamodel = SQLAInterface(TestTable)
