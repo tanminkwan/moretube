@@ -3,11 +3,11 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import BaseView, ModelView, ModelRestApi, has_access
 from flask_appbuilder.filemanager import FileManager, uuid_namegen
 from flask_appbuilder.api import BaseApi, expose, protect
-from .models import UTubeContentMaster, UTubeContentCaption, ContentMaster, TestTable\
-  , EcamFile, Program
+from .models import Dictionary, UTubeContentMaster, UTubeContentCaption\
+  , ContentMaster, TestTable, EcamFile, Program
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
-from .queries import selectRow
+from .queries import selectRow, selectDict
 from .common import VerifyYaml
 
 from io import BytesIO
@@ -17,38 +17,12 @@ import json
 import yaml
 from youtube_transcript_api import YouTubeTranscriptApi
 
-"""
-    Create your Model based REST API::
-
-    class MyModelApi(ModelRestApi):
-        datamodel = SQLAInterface(MyModel)
-
-    appbuilder.add_api(MyModelApi)
-
-
-    Create your Views::
-
-
-    class MyModelView(ModelView):
-        datamodel = SQLAInterface(MyModel)
-
-
-    Next, register your Views::
-
-
-    appbuilder.add_view(
-        MyModelView,
-        "My View",
-        icon="fa-folder-open-o",
-        category="My Category",
-        category_icon='fa-envelope'
-    )
-"""
 REPMAP = [
   ('(s(','<span class="w_subject">'),
   ('(v(','<span class="w_verb">'),
   ('(<(','<span class="p_relative">'),
   ('(t(','<span class="p_title">'),
+  ('(d(','<span class="w_dict" onclick="viewDict(this)">'),
   ('))','</span>'),
 ]
 
@@ -57,7 +31,7 @@ def _setDeco(text):
       text = text.replace(tup[0], tup[1])
     
     return text
-    
+
 def _addEnd(jlist):
     return [ j | {'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
 
@@ -100,10 +74,10 @@ def update_stream_info(mapper, connection, target):
 
     print('UTubeContentCaption insert!!')
 
-class UTubeContentMasterView(ModelView):
-    datamodel = SQLAInterface(UTubeContentMaster)
-    list_title = 'YouTube Contents'
-    list_columns = ['show_html','content_description','content_id','download_yaml','play_from','play_to','create_on']
+class DictionaryView(ModelView):
+    datamodel = SQLAInterface(Dictionary)
+    list_title = 'Dictionary'
+    list_columns = ['tags','value1']
     #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
@@ -127,6 +101,16 @@ class UTubeContentCaptionView(ModelView):
     validators_columns = {
       'captions_yaml':[VerifyYaml()],
     }
+
+class UTubeContentMasterView(ModelView):
+    datamodel = SQLAInterface(UTubeContentMaster)
+    list_title = 'YouTube Contents'
+    list_columns = ['show_html','content_description','content_id','download_yaml','play_from','play_to','create_on']
+    #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
+    edit_exclude_columns = ['id','create_on']
+    add_exclude_columns = ['id','create_on']
+
+    related_views = [UTubeContentCaptionView]
 
 class TestTableView(ModelView):
     datamodel = SQLAInterface(TestTable)
@@ -192,7 +176,19 @@ class ProgramApi(ModelRestApi):
 class ContentsInfo(BaseApi):
   
     resource_name = 'mytube'
-    
+
+    @expose('/dictionary/<word>', methods=['GET'])
+    @has_access
+    def getDictionary(self, word):
+      
+      recs, _ = selectDict(word)
+
+      rlist = []
+      if recs:
+        rlist = [ r.description for r in recs ]
+      
+      return jsonify({'data':rlist})
+
     @expose('/caption/<id>', methods=['GET'])
     @has_access
     def getCaption(self, id):
@@ -459,6 +455,7 @@ def page_not_found(e):
     )
 
 db.create_all()
+"""
 appbuilder.add_view(
     TestTableView,
     "CRUD Test",
@@ -484,6 +481,12 @@ appbuilder.add_view(
     icon = "fa-folder-open-o",
     category = "TEST MENU"
 )
+appbuilder.add_view_no_menu(TestStream, "stream")
+appbuilder.add_api(ContentsManager)
+appbuilder.add_api(UserManager)
+appbuilder.add_api(ContentMasterApi)
+appbuilder.add_api(ProgramApi)
+"""
 appbuilder.add_view(
     UTubeContentMasterView,
     "YouTube Contents",
@@ -493,16 +496,18 @@ appbuilder.add_view(
 )
 appbuilder.add_view(
     UTubeContentCaptionView,
-    "Captionss",
+    "Captions",
     icon = "fa-folder-open-o",
     category = "Contents",
     category_icon = "fa-envelope"
 )
-appbuilder.add_view_no_menu(TestStream, "stream")
-#appbuilder.add_api(TestTableApi)
-appbuilder.add_api(ContentsManager)
-appbuilder.add_api(UserManager)
-appbuilder.add_api(ContentMasterApi)
-appbuilder.add_api(ProgramApi)
+appbuilder.add_view(
+    DictionaryView,
+    "Dictionary",
+    icon = "fa-folder-open-o",
+    category = "Contents",
+    category_icon = "fa-envelope"
+)
+
 appbuilder.add_api(ContentsInfo)
 appbuilder.add_api(UTubeContent)

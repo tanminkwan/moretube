@@ -2,9 +2,9 @@
 {% import 'appbuilder/general/lib.html' as lib %}
 {% block content %}
 <link rel="stylesheet" href="/static/css/toggle.css" />
-<link rel="stylesheet" href="/static/css/toastr.css" />
+<link rel="stylesheet" href="/static/css/toastr_modi.css" />
 <script src="/static/js/toggle.js"></script>
-<script src="/static/js/toastr.js"></script>
+<script src="/static/js/toastr_modi.js"></script>
 <script src="/static/js/tata.js"></script>
   <style>
     .w_subject {
@@ -12,6 +12,10 @@
     }
     .w_verb {
       background-color: rgb(202, 247, 202);
+    }
+    .w_dict {
+      text-decoration-line: underline;
+      font-weight: bold;
     }
     .p_relative {
       background-color: rgb(252, 209, 242);
@@ -369,15 +373,50 @@
         var duration = 0
         if(captions[id].hasOwnProperty('text_c')){
           message = captions[id].text_c
-          duration = 5000
+          duration = 6000
 
           toastr.info('', message, {
             timeOut: duration,
-            positionClass: "toast-top-center"
+            positionClass: "toast-top-center",
+            closeButton: true,
+            showDuration: 200,
+            closeDuration: 0,
+            hideDuration: 200,
+
           })
 
         }
 
+      }
+
+      function viewDict(dict) {
+        var rlist = getDict(dict.innerHTML);
+        
+        rlist.forEach((x, i) => 
+          toastr.success('', x, {
+              timeOut: 8000,
+              positionClass: "toast-top-center",
+              closeButton: true,
+              showDuration: 200,
+              closeDuration: 0,
+              hideDuration: 200,
+          })
+        );
+      }
+
+      function getDict(text) {
+        var result ='';
+        text = text.replaceAll(' ', '_').toLowerCase();
+        
+        $.ajax({
+          type: "GET",
+          url: "/api/v1/mytube/dictionary/" + text,
+          async: false
+        }).done(function (response) {
+          result = response.data          
+        });
+        console.log('result2 : ' + result);
+        return result;
       }
 
       function getcaptions() {

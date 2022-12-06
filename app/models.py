@@ -2,7 +2,8 @@ from flask import Markup, url_for
 from flask_appbuilder import Model
 from flask_appbuilder.models.mixins import FileColumn
 from sqlalchemy import Table, Column, Integer, Float, String, Text, ForeignKey\
-    , DateTime, Enum, UniqueConstraint
+    , DateTime, Enum, UniqueConstraint, Index
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
@@ -16,6 +17,30 @@ You can use the extra Flask-AppBuilder fields and Mixin's
 AuditMixin will add automatic timestamp of created and modified by who
 
 """
+class Dictionary(Model):
+    __tablename__ = "dictionary"
+
+    id = Column(Integer, primary_key=True)
+    tags         = Column(String(1000), nullable=False, comment='유사단어묶음')
+    description  = Column(Text, comment='설명')
+    value1       = Column(String(100), comment='부가정보1')
+    value2       = Column(String(100), comment='부가정보2')
+    user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
+    create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
+    
+    UniqueConstraint(tags)
+
+    __table_args__ = (
+        Index('ix_dictionary_gin'
+            , func.string_to_array(tags, ',')
+            , postgresql_using='gin'
+        ),
+        {"comment":"사전"}
+    )
+
+    def __repr__(self) -> str:
+        return self.tags
+
 class UTubeContentMaster(Model):
 
     __tablename__ = "utube_content_master"

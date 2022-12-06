@@ -1,4 +1,5 @@
 from . import db
+from sqlalchemy.sql import func
 
 table_dict = {table.__tablename__: table for table in db.Model.__subclasses__()}
 table_args = {table.__tablename__: table.__table_args__ for table in db.Model.__subclasses__()}
@@ -57,3 +58,11 @@ def updateRows(table_name, update_dict, filter_dict):
 def _getTableOjbect(table_name):
     return next((t for t in db.Model.__subclasses__() if t.__tablename__ == table_name), None)
     
+def selectDict(keyword):
+
+    table = _getTableOjbect('dictionary')
+    column = getattr(table, 'tags')
+
+    recs = db.session.query(table)\
+        .filter(func.string_to_array(column,',').op("&&")(keyword.split(',')))
+    return recs, 1
