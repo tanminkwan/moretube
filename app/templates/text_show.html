@@ -1,0 +1,16 @@
+{% extends "appbuilder/base.html" %}
+{% import 'appbuilder/general/lib.html' as lib %}
+{% block content %}
+<div>
+    <h4>{{title}}</h4>
+</div>
+<div>
+    {% for jrow in jcontents_list %}
+    <p>{{jrow['id']}} : {{jrow['text']}}</p>
+    {# if jrow.get('text_c') #}
+        <p>{{jrow['text_c']|safe}}</p>
+    {# endif #}
+    {% endfor %}
+</div>
+
+{% endblock %}

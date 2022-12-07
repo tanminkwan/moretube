@@ -7,6 +7,12 @@
 <script src="/static/js/toastr_modi.js"></script>
 <script src="/static/js/tata.js"></script>
   <style>
+    #function-buttons {
+      width: 100%;
+    }
+    .function-button {
+      width: 100%;
+    }
     .w_subject {
       background-color: rgb(196, 236, 247);
     }
@@ -23,6 +29,9 @@
     .p_title {
       color: brown;
       font-weight: bold;
+    }
+    .dict-word {
+      color:rgb(245, 245, 143);
     }
     .column0_1 {
       color: red;
@@ -111,7 +120,7 @@
 
       var flag = 1;
 
-      let playMode = 1;
+      let playMode = 2;
       let youtubeid = "{{content_id}}";
       let captions = [];
       let captions_new = [];
@@ -130,7 +139,7 @@
 
         $("#stopmode").setupToggles({
           toggleOptions: opt,
-          defaultValue: 1,
+          defaultValue: 2,
           onSelectedValueChange: toggleValueChanged,
         });
       });
@@ -313,11 +322,7 @@
         return rtn;
       }
 
-      function myFunction1() {
-        player.seekTo(100.5, true);
-        player.playVideo();
-      }
-      function myFunction2() {
+      function myNormal() {
         player.setPlaybackRate(1.0);
         //player.playVideo();
       }
@@ -377,7 +382,7 @@
 
           toastr.info('', message, {
             timeOut: duration,
-            positionClass: "toast-top-center",
+            positionClass: "toast-top-full-width",
             closeButton: true,
             showDuration: 200,
             closeDuration: 0,
@@ -390,12 +395,15 @@
       }
 
       function viewDict(dict) {
-        var rlist = getDict(dict.innerHTML);
+
+        var word = dict.innerHTML
+        var rlist = getDict(word);
+        var deco_word = '<span class="dict-word">'+word+'</span>'
         
         rlist.forEach((x, i) => 
-          toastr.success('', x, {
+          toastr.success('', deco_word + ' : ' + x, {
               timeOut: 8000,
-              positionClass: "toast-top-center",
+              positionClass: "toast-top-full-width",
               closeButton: true,
               showDuration: 200,
               closeDuration: 0,
@@ -415,7 +423,7 @@
         }).done(function (response) {
           result = response.data          
         });
-        console.log('result2 : ' + result);
+        //console.log('result2 : ' + result);
         return result;
       }
 
@@ -452,11 +460,14 @@
               //console.log(i + " : " + val);
 
             });
+
+            window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
+            
         }).fail(function (response) {
             console.log();
         });
 
-        //console.log(captions)
+        console.log('captions')
       }
 
       getcaptions();
@@ -502,7 +513,11 @@
 
       function captionScroll(x) {
         //$('#caption-ul').scrollTop($('#caption-ul li:eq('+x+')').offset().top);
-        $('#caption-ul').scrollTop($('#caption-ul li:nth-child('+x+')').position().top - $('#caption-ul li:first').position().top);
+        if(x==0){
+          $('#caption-ul').scrollTop($('#caption-ul li:nth-child(1)').position().top - $('#caption-ul li:first').position().top);
+        }else{
+          $('#caption-ul').scrollTop($('#caption-ul li:nth-child('+x+')').position().top - $('#caption-ul li:first').position().top);
+        }
         $('#li-'+x).css("background-color","white")
         //$("caption-ul").get(x).scrollIntoView();
       }
@@ -560,6 +575,7 @@
             //flag=0;
         }
       }
+
     </script>
   <div>
     <table>
@@ -570,7 +586,7 @@
         <th>
           <button onclick="mySlow()" accesskey="v">Slow(v)</button>
           <button onclick="myFast()" accesskey="c">Fast(c)</button>
-          <button onclick="myFunction2()" accesskey="n">Normal(n)</button>
+          <button onclick="myNormal()" accesskey="n">Normal(n)</button>
         </th>
       </tr>
     </table>
@@ -586,12 +602,12 @@
     </table>
   </div>
   <div>
-    <table>
+    <table id="function-buttons">
       <tr>
-        <th><button id="toggleDiv" onclick="mytoggle()" accesskey="q">Play (q)</button></th>
-        <th><button onclick="playById(current_caption-1)" accesskey="z">&lt;Prev(z)</button></th>
-        <th><button onclick="playById(current_caption)" accesskey="x">Replay(x)</button></th>
-        <th><button onclick="playById(current_caption+1)" accesskey="c">&gt;Next(c)</button></th>
+        <th><button class="function-button" id="toggleDiv" onclick="mytoggle()" accesskey="q">Play (q)</button></th>
+        <th><button class="function-button" onclick="playById(current_caption-1)" accesskey="z">&lt;Prev(z)</button></th>
+        <th><button class="function-button" onclick="playById(current_caption)" accesskey="x">Replay(x)</button></th>
+        <th><button class="function-button" onclick="playById(current_caption+1)" accesskey="c">&gt;Next(c)</button></th>
       </tr>
     </table>
   </div>

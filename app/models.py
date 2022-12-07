@@ -42,7 +42,6 @@ class Dictionary(Model):
         return self.tags
 
 class UTubeContentMaster(Model):
-
     __tablename__ = "utube_content_master"
     __table_args__ = {"comment":"Youtube Content 정보"}
     
@@ -87,6 +86,9 @@ class UTubeContentCaption(Model):
 
     def __repr__(self) -> str:
         return self.caption_id
+
+    def show_html(self):
+        return Markup('<a href="/utube/textview/'+str(self.id)+'">VIEW</a>')
 
 class ContentMaster(Model):
 

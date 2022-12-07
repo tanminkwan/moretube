@@ -32,6 +32,12 @@ def _setDeco(text):
     
     return text
 
+def _removeDeco(text):
+    for tup in REPMAP:
+      text = text.replace(tup[0], '')
+    
+    return text
+
 def _addEnd(jlist):
     return [ j | {'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
 
@@ -85,7 +91,7 @@ class DictionaryView(ModelView):
 class UTubeContentCaptionView(ModelView):
     datamodel = SQLAInterface(UTubeContentCaption)
     list_title = 'YouTube Content Captions'
-    list_columns = ['utube_content_master','caption_id','picked_yn','create_on']
+    list_columns = ['utube_content_master','show_html','caption_id','picked_yn','create_on']
     edit_exclude_columns = ['captions','id','create_on']
     add_exclude_columns = ['captions','id','create_on']
     search_exclude_columns = ['captions']
@@ -302,6 +308,28 @@ class UTubeContent(BaseApi):
                 content_description = row.content_description,
                 base_template=appbuilder.base_template,
                 appbuilder=appbuilder,
+          )
+
+    @expose('/textview/<id>', methods=['GET'])
+    @has_access
+    def textview(self, id=None):
+
+      row, _ = selectRow('utube_content_caption',{'id':int(id)})
+
+      if row:
+
+        title = row.utube_content_master.content_description
+
+        decoed_ycap = _removeDeco(row.captions_yaml)
+        jlist =  yaml.safe_load(decoed_ycap)
+        jlist = _removeEmpty(jlist)
+        jlist = _addID(jlist)
+
+        return render_template('text_show.html',\
+                title          = title,
+                jcontents_list = jlist,
+                base_template  = appbuilder.base_template,
+                appbuilder     = appbuilder,
           )
 
 class ContentsManager(BaseApi):
