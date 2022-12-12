@@ -118,6 +118,15 @@ class UTubeContentMasterView(ModelView):
 
     related_views = [UTubeContentCaptionView]
 
+class UTubeContentMasterAPI(ModelRestApi):
+
+    resource_name = 'utubecontentmaster'
+
+    datamodel = SQLAInterface(UTubeContentMaster)
+
+    list_columns = ['show_html','content_description','content_id','download_yaml','play_from','play_to','user_id','create_on']
+
+
 class TestTableView(ModelView):
     datamodel = SQLAInterface(TestTable)
     list_title = 'CRUD TEST'
@@ -320,10 +329,7 @@ class UTubeContent(BaseApi):
 
         title = row.utube_content_master.content_description
 
-        decoed_ycap = _removeDeco(row.captions_yaml)
-        jlist =  yaml.safe_load(decoed_ycap)
-        jlist = _removeEmpty(jlist)
-        jlist = _addID(jlist)
+        jlist = convertYcap2Jcap(row.captions_yaml)
 
         return render_template('text_show.html',\
                 title          = title,
@@ -539,3 +545,4 @@ appbuilder.add_view(
 
 appbuilder.add_api(ContentsInfo)
 appbuilder.add_api(UTubeContent)
+appbuilder.add_api(UTubeContentMasterAPI)

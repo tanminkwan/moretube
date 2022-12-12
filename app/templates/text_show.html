@@ -1,14 +1,31 @@
 {% extends "appbuilder/base.html" %}
 {% import 'appbuilder/general/lib.html' as lib %}
 {% block content %}
+<link rel="stylesheet" href="/static/css/toastr_modi.css" />
+<script src="/static/js/toastr_modi.js"></script>
+<script src="/static/js/myjs.js"></script>
+<style>
+    .i_text {
+        background-color: rgb(222, 247, 222);
+    }
+    .i_text_c {
+        color: brown;
+    }
+    .w_dict {
+      text-decoration-line: underline;
+    }
+    .dict-word {
+      color:rgb(245, 245, 143);
+    }
+</style>
 <div>
     <h4>{{title}}</h4>
 </div>
 <div>
     {% for jrow in jcontents_list %}
-    <p>{{jrow['id']}} : {{jrow['text']}}</p>
+    <p class="i_text">{{jrow['id']}} : {{jrow['text']|safe}}</p>
     {# if jrow.get('text_c') #}
-        <p>{{jrow['text_c']|safe}}</p>
+        <p class="i_text_c">{{jrow['text_c']|safe}}</p>
     {# endif #}
     {% endfor %}
 </div>

@@ -4,11 +4,13 @@ from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_apscheduler import APScheduler
-from flask_appbuilder import AppBuilder, SQLA
+from flask_appbuilder import AppBuilder, SQLA, IndexView
 
 """
  Logging configuration
 """
+class MyIndexView(IndexView):
+    index_template = 'my_index.html'
 
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
 logging.getLogger().setLevel(logging.DEBUG)
@@ -24,7 +26,7 @@ scheduler.init_app(app)
 scheduler.start()
 
 CORS(app)
-appbuilder = AppBuilder(app, db.session)
+appbuilder = AppBuilder(app, db.session, indexview=MyIndexView)
 
 """
 from sqlalchemy.engine import Engine
