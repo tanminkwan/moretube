@@ -121,6 +121,8 @@ class UTubeContentMasterView(ModelView):
 class UTubeContentMasterAPI(ModelRestApi):
 
     resource_name = 'utubecontentmaster'
+    
+    allow_browser_login = True
 
     datamodel = SQLAInterface(UTubeContentMaster)
 

@@ -1,7 +1,48 @@
 {% extends "appbuilder/base.html" %}
 {% import 'appbuilder/general/lib.html' as lib %}
 {% block content %}
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+</style>
 <div>
     <h2><center>신난다 영어공부</center></h2>
 </div>
+<div>
+    <table id="content-list">
+        <tr>
+            <th>ID</th><th>제목</th><th>보기</th><th>작성자</th><th>작성일시</th>
+        </tr>
+    </table>
+</div>
+<script>
+    var p_condition = `
+    {
+        "order_column": "create_on",
+        "order_direction": "desc",
+        "page": 0,
+        "page_size": 5
+    }`
+    $.ajax({
+        type: "GET",
+        url: "/api/v1/utubecontentmaster/?q=" + p_condition
+    }).done(function (response){
+        $(response.result).each(function(i,val){
+            var line = '<tr><td>'+ val.content_id +
+                    '</td><td>'+ val.content_description +
+                    '</td><td>'+ val.show_html +
+                    '</td><td>'+ val.user_id +
+                    '</td><td>'+ val.create_on +'</td></tr>'
+            $("#content-list").append(line);
+        })
+    })
+</script>
 {% endblock %}
