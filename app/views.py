@@ -7,7 +7,7 @@ from .models import Dictionary, UTubeContentMaster, UTubeContentCaption\
   , ContentMaster, TestTable, EcamFile, Program
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
-from .queries import selectRow, selectDict
+from .queries import selectRow, selectDict, applyDicts
 from .common import VerifyYaml
 
 from io import BytesIO
@@ -15,6 +15,7 @@ import os
 import re
 import json
 import yaml
+import traceback
 from youtube_transcript_api import YouTubeTranscriptApi
 
 REPMAP = [
@@ -121,7 +122,7 @@ class UTubeContentMasterView(ModelView):
 class UTubeContentMasterAPI(ModelRestApi):
 
     resource_name = 'utubecontentmaster'
-    
+
     allow_browser_login = True
 
     datamodel = SQLAInterface(UTubeContentMaster)
@@ -245,7 +246,73 @@ class ContentsInfo(BaseApi):
       output.seek(0)
 
       return send_file(output, attachment_filename=id+'_test.yaml', as_attachment=True)    
-  
+
+    @expose('/upload_dict', methods=['POST'])
+    @protect()
+    def upload_dict(self, **kwargs):
+        """POST Dictionary file Upload
+        ---
+        post:
+          description: Upload a dictionary file
+          requestBody:
+            description: yaml file
+            required: true
+            content:
+              multipart/form-data:
+                schema:
+                  type: object
+                  properties:
+                    file:
+                      type: string
+                      format: binary
+          responses:
+            201:
+              description: File Uploaded
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      return_code:
+                        type: integer
+                      stored_file_name:
+                        type: string
+                      message:
+                        type: string
+                    example:
+                      return_code: 1
+                      stored_file_name: dict.yaml
+                      message: Well done
+            415:
+              description: Invalid Yaml Type
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      return_code:
+                        type: integer
+                      message:
+                        type: string
+                    example:
+                      return_code: -1
+                      message: jpg is not a yaml type.
+        """
+        file = request.files['file']
+        file_name = file.filename 
+        filetype = file_name.split('.')[-1]
+        
+        if filetype.lower() in ['yaml']:
+          try:
+            d_list = yaml.safe_load(file)
+            rtn, message = applyDicts(d_list)            
+          except yaml.parser.ParserError as e:
+            return jsonify({'return_code':-2, 'message':traceback.format_exc()}), 415
+        else:
+          return jsonify({'return_code':-1, 'message':filetype+' is not yaml type.'}), 415
+        
+        return jsonify({'return_code':rtn, 'file_name':file_name, 'message':message}), 201
+
 class UserManager(BaseApi):
     
     resource_name = 'user'

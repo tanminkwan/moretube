@@ -66,3 +66,6 @@ def selectDict(keyword):
     recs = db.session.query(table)\
         .filter(func.string_to_array(column,',').op("&&")(keyword.split(',')))
     return recs, 1
+
+def applyDicts(d_list):
+    return 1, 'OK'
