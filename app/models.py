@@ -7,7 +7,8 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
-from .common import get_user, get_now, get_hostname, get_thumbnailpath, YnEnum
+from .common import get_user, get_now, get_hostname, YnEnum
+from .queries import get_thumbnailpath
 from . import app
 
 """

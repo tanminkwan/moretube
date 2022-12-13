@@ -303,12 +303,20 @@ class ContentsInfo(BaseApi):
         filetype = file_name.split('.')[-1]
         
         if filetype.lower() in ['yaml']:
+
           try:
+
             d_list = yaml.safe_load(file)
             rtn, message = applyDicts(d_list)            
+            db.session.commit()
+
           except yaml.parser.ParserError as e:
             return jsonify({'return_code':-2, 'message':traceback.format_exc()}), 415
+          except Exception as e:
+            return jsonify({'return_code':-3, 'message':traceback.format_exc()}), 415
+
         else:
+          
           return jsonify({'return_code':-1, 'message':filetype+' is not yaml type.'}), 415
         
         return jsonify({'return_code':rtn, 'file_name':file_name, 'message':message}), 201

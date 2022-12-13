@@ -1,5 +1,7 @@
 from . import db
 from sqlalchemy.sql import func
+from .common import get_user, get_now
+from sqlalchemy.dialects.postgresql import insert
 
 table_dict = {table.__tablename__: table for table in db.Model.__subclasses__()}
 table_args = {table.__tablename__: table.__table_args__ for table in db.Model.__subclasses__()}
@@ -67,5 +69,27 @@ def selectDict(keyword):
         .filter(func.string_to_array(column,',').op("&&")(keyword.split(',')))
     return recs, 1
 
+def get_thumbnailpath(stored_filename):
+    
+    filter_dict = dict(
+        ref_stored_filename = stored_filename
+    )    
+    rec, _ = selectRow('content_master', filter_dict)
+    
+    return rec.manifest_path if rec else ''
+
 def applyDicts(d_list):
+
+    table = _getTableOjbect('dictionary')
+
+    for row in d_list:
+        i_dict = row | dict(create_on=get_now(), user_id=get_user())
+        insert_stmt = insert(table).values(i_dict)
+        u_dict = {key:i_dict[key] for key in i_dict if key != 'tags'}
+        upsert_stmt = insert_stmt.on_conflict_do_update(
+            index_elements=['tags'],
+            set_=u_dict
+        )
+        db.session.execute(upsert_stmt)
+
     return 1, 'OK'
