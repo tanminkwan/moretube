@@ -7,10 +7,10 @@ from .models import Dictionary, UTubeContentMaster, UTubeContentCaption\
   , ContentMaster, TestTable, EcamFile, Program
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
-from .queries import selectRow, selectDict, applyDicts
+from .queries import selectRow, selectRows, selectDict, applyDicts
 from .common import VerifyYaml
 
-from io import BytesIO
+from io import BytesIO, StringIO
 import os
 import re
 import json
@@ -247,6 +247,29 @@ class ContentsInfo(BaseApi):
 
       return send_file(output, attachment_filename=id+'_test.yaml', as_attachment=True)    
 
+    @expose('/dictionary_yaml', methods=['GET'])
+    @has_access
+    def getDictionaryYaml(self):
+      
+      jlist, _ = selectRows('dictionary',{})
+
+      data = []
+      for j in jlist:
+        r_dict = dict(
+          tags       =j.tags,
+          description=j.description,
+        )
+        r_dict = r_dict | ({'value1':j.value1} if j.value1 else {}) | ({'value2':j.value2} if j.value2 else {})
+        data.append(r_dict)
+
+      data_y = yaml.dump(data, allow_unicode=True)
+      
+      data_s = str(data_y)
+      output = BytesIO(bytes(data_s,'utf-8'))
+      output.seek(0)
+
+      return send_file(output, attachment_filename='_dictionary.yaml', as_attachment=True)    
+
     @expose('/upload_dict', methods=['POST'])
     @protect()
     def upload_dict(self, **kwargs):
@@ -316,7 +339,7 @@ class ContentsInfo(BaseApi):
             return jsonify({'return_code':-3, 'message':traceback.format_exc()}), 415
 
         else:
-          
+
           return jsonify({'return_code':-1, 'message':filetype+' is not yaml type.'}), 415
         
         return jsonify({'return_code':rtn, 'file_name':file_name, 'message':message}), 201
