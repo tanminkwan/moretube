@@ -262,7 +262,7 @@ class ContentsInfo(BaseApi):
         r_dict = r_dict | ({'value1':j.value1} if j.value1 else {}) | ({'value2':j.value2} if j.value2 else {})
         data.append(r_dict)
 
-      data_y = yaml.dump(data, allow_unicode=True)
+      data_y = yaml.dump(data, sort_keys=False, allow_unicode=True)
       
       data_s = str(data_y)
       output = BytesIO(bytes(data_s,'utf-8'))
