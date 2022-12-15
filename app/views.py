@@ -3,12 +3,13 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import BaseView, ModelView, ModelRestApi, has_access
 from flask_appbuilder.filemanager import FileManager, uuid_namegen
 from flask_appbuilder.api import BaseApi, expose, protect
-from .models import Dictionary, UTubeContentMaster, UTubeContentCaption\
+from .models import Dictionary, Mp4ContentMaster, UTubeContentMaster, UTubeContentCaption\
   , ContentMaster, TestTable, EcamFile, Program
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
 from .queries import selectRow, selectRows, selectDict, applyDicts
 from .common import VerifyYaml
+from .batchs import transVideo
 
 from io import BytesIO, StringIO
 import os
@@ -60,6 +61,11 @@ def convertYcap2Jcap(ycap):
     jlist3 =_removeEmpty(jlist2)
     return _addID(jlist3)
 
+@db.event.listens_for(Mp4ContentMaster, 'after_insert')
+def transecode_mp4(mapper, connection, target):
+    
+    transVideo(str(target.file))
+
 @db.event.listens_for(ContentMaster, 'after_insert')
 def update_stream_info(mapper, connection, target):
     
@@ -108,6 +114,9 @@ class UTubeContentCaptionView(ModelView):
     validators_columns = {
       'captions_yaml':[VerifyYaml()],
     }
+
+class Mp4ContentMasterView(ModelView):
+    datamodel = SQLAInterface(Mp4ContentMaster)
 
 class UTubeContentMasterView(ModelView):
     datamodel = SQLAInterface(UTubeContentMaster)
@@ -621,6 +630,13 @@ appbuilder.add_api(UserManager)
 appbuilder.add_api(ContentMasterApi)
 appbuilder.add_api(ProgramApi)
 """
+appbuilder.add_view(
+    Mp4ContentMasterView,
+    "Mp4 Contents",
+    icon = "fa-folder-open-o",
+    category = "Contents",
+    category_icon = "fa-envelope"
+)
 appbuilder.add_view(
     UTubeContentMasterView,
     "YouTube Contents",

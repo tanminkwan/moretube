@@ -1,5 +1,6 @@
 from flask import Markup, url_for
 from flask_appbuilder import Model
+from flask_appbuilder.filemanager import get_file_original_name
 from flask_appbuilder.models.mixins import FileColumn
 from sqlalchemy import Table, Column, Integer, Float, String, Text, ForeignKey\
     , DateTime, Enum, UniqueConstraint, Index
@@ -41,6 +42,29 @@ class Dictionary(Model):
 
     def __repr__(self) -> str:
         return self.tags
+
+class Mp4ContentMaster(Model):
+    __tablename__ = "mp4_content_master"
+    __table_args__ = {"comment":"mp4 Content file"}
+    
+    id = Column(Integer, primary_key=True)
+    filename        = Column(String(100), nullable=False, comment='컨텐츠 파일 이름')
+    file            = Column(FileColumn, nullable=False)
+    description     = Column(String(500), nullable=True, comment='설명')
+    manifest_path   = Column(String(500), nullable=True, comment='m8u3 파일 url path')
+    user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
+    create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
+    
+    def download(self):
+        return Markup(
+            '<a href="'
+            + url_for('FileModelView.download', filename=str(self.file))
+            + '">Download</a>'
+        )
+
+    def get_filename(self):
+        return get_file_original_name(str(self.file))
+    
 
 class UTubeContentMaster(Model):
     __tablename__ = "utube_content_master"
