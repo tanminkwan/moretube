@@ -17,7 +17,7 @@ SECRET_KEY = "\2\1thisismyscretkey\1\2\e\y\y\h"
 # The SQLAlchemy connection string.
 # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "app.db")
 # SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
-SQLALCHEMY_DATABASE_URI = 'postgresql://tiffanie:1q2w3e4r!!@localhost/moretube'
+SQLALCHEMY_DATABASE_URI = 'postgresql://tiffanie:1q2w3e4r!!@ecam.cfgxxyf0e4rj.us-west-1.rds.amazonaws.com/moretube'
 
 # SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URI']
 
@@ -97,12 +97,14 @@ LANGUAGES = {
 if os.name == 'nt':
     UPLOAD_FOLDER = "C:/static/uploads/"
     IMG_UPLOAD_FOLDER = "C:/static/uploads/images/"
+    HLS_STREAM_FOLDER = "C:/static/hls/"
 else:
     # The file upload folder, when using models with files
     UPLOAD_FOLDER = "/static/uploads/"
 
     # The image upload folder, when using models with images
     IMG_UPLOAD_FOLDER = "/static/uploads/images/"
+    HLS_STREAM_FOLDER = "/static/hls/"
 
 # The image upload url, when using models with images
 IMG_UPLOAD_URL = "/static/uploads/"
