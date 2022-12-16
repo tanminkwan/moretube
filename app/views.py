@@ -498,7 +498,7 @@ class UTubeContent(BaseApi):
 
       if row:
 
-        title = row.utube_content_master.content_description
+        title = row.caption_id
 
         jlist = convertYcap2Jcap(row.captions_yaml)
 
