@@ -7,19 +7,34 @@
         border-collapse: collapse;
         width: 100%;
     }
-    td, th {
+    td {
         border: 1px solid #dddddd;
         text-align: left;
+        padding: 8px;
+    }
+    th {
+        border: 1px solid #aaaaaa;
+        text-align: center;
         padding: 8px;
     }
 </style>
 <div>
     <h2><center>신난다 영어공부</center></h2>
 </div>
+
 <div>
-    <table id="content-list">
+    <h4>Utube List</h4>
+    <table id="utube-list">
         <tr>
             <th>ID</th><th>제목</th><th>보기</th><th>작성자</th><th>작성일시</th>
+        </tr>
+    </table>
+</div>
+<div>
+    <h4>Streaming List</h4>
+    <table id="mp4-list">
+        <tr>
+            <th>파일명</th><th>제목</th><th>보기</th><th>작성자</th><th>작성일시</th>
         </tr>
     </table>
 </div>
@@ -41,7 +56,20 @@
                     '</td><td>'+ val.show_html +
                     '</td><td>'+ val.user_id +
                     '</td><td>'+ val.create_on +'</td></tr>'
-            $("#content-list").append(line);
+            $("#utube-list").append(line);
+        })
+    })
+    $.ajax({
+        type: "GET",
+        url: "/api/v1/mp4contentmaster/?q=" + p_condition
+    }).done(function (response){
+        $(response.result).each(function(i,val){
+            var line = '<tr><td>'+ val.get_filename +
+                    '</td><td>'+ val.description +
+                    '</td><td>'+ val.show_html +
+                    '</td><td>'+ val.user_id +
+                    '</td><td>'+ val.create_on +'</td></tr>'
+            $("#mp4-list").append(line);
         })
     })
 </script>

@@ -8,19 +8,16 @@ import ffmpeg
 def batch_transVideos():
     print('batch_transVideos : ', datetime.now())
 
-def transVideo(filename):
+def transVideo(inputFile, outputPath, outputFile):
     
-    inputfilename  = app.config['UPLOAD_FOLDER'] + filename
-    outoutpath = app.static_folder + '/hls/' + filename[:-4]
+    if not os.path.exists(outputPath):
+      os.makedirs(outputPath)
 
-    if not os.path.exists(outoutpath):
-      os.makedirs(outoutpath)
-
-    outputfilename = outoutpath + '/' + 'playlist.m3u8'
+    outputFullFilename = outputPath + '/' + outputFile
     
-    input_stream = ffmpeg.input(inputfilename, f='mp4')
+    input_stream = ffmpeg.input(inputFile, f='mp4')
     
-    output_stream = ffmpeg.output(input_stream, outputfilename, format='hls', start_number=0, hls_time=10, hls_list_size=0)
+    output_stream = ffmpeg.output(input_stream, outputFullFilename, format='hls', start_number=0, hls_time=10, hls_list_size=0)
     
     ffmpeg.run(output_stream)
     

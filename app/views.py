@@ -1,4 +1,4 @@
-from flask import g, render_template, request, Response, send_file, jsonify
+from flask import g, render_template, request, Response, send_from_directory, send_file, jsonify
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import BaseView, ModelView, ModelRestApi, has_access
 from flask_appbuilder.filemanager import FileManager, uuid_namegen
@@ -61,10 +61,19 @@ def convertYcap2Jcap(ycap):
     jlist3 =_removeEmpty(jlist2)
     return _addID(jlist3)
 
-@db.event.listens_for(Mp4ContentMaster, 'after_insert')
+@db.event.listens_for(Mp4ContentMaster, 'before_insert')
 def transecode_mp4(mapper, connection, target):
     
-    transVideo(str(target.file))
+    filename = str(target.file)
+    fileId   = filename[:-4]
+    inputFile = app.config['UPLOAD_FOLDER'] + filename
+    outputPath = app.config['HLS_STREAM_FOLDER'] + fileId
+
+    outputFile = 'playlist.m3u8'
+
+    transVideo(inputFile, outputPath, outputFile)
+
+    target.manifest_path = '/api/v1/mytube/hls/' + fileId + '/' + outputFile
 
 @db.event.listens_for(ContentMaster, 'after_insert')
 def update_stream_info(mapper, connection, target):
@@ -117,6 +126,10 @@ class UTubeContentCaptionView(ModelView):
 
 class Mp4ContentMasterView(ModelView):
     datamodel = SQLAInterface(Mp4ContentMaster)
+    list_title = 'Mp4 Contents'
+    list_columns = ['show_html','get_filename','description','download','create_on']
+    edit_exclude_columns = ['id','file','create_on']
+    add_exclude_columns = ['id','manifest_path','create_on']
 
 class UTubeContentMasterView(ModelView):
     datamodel = SQLAInterface(UTubeContentMaster)
@@ -138,6 +151,15 @@ class UTubeContentMasterAPI(ModelRestApi):
 
     list_columns = ['show_html','content_description','content_id','download_yaml','play_from','play_to','user_id','create_on']
 
+class Mp4ContentMasterAPI(ModelRestApi):
+
+    resource_name = 'mp4contentmaster'
+
+    allow_browser_login = True
+
+    datamodel = SQLAInterface(Mp4ContentMaster)
+
+    list_columns = ['show_html','get_filename','description','download','user_id','create_on']
 
 class TestTableView(ModelView):
     datamodel = SQLAInterface(TestTable)
@@ -204,6 +226,12 @@ class ContentsInfo(BaseApi):
   
     resource_name = 'mytube'
 
+    @expose('/hls/<dir>/<filename>', methods=['GET'])
+    @has_access
+    def getM3u8File(self, dir, filename):
+      
+      return send_from_directory(app.config['HLS_STREAM_FOLDER'] + dir + '/', filename)
+
     @expose('/dictionary/<word>', methods=['GET'])
     @has_access
     def getDictionary(self, word):
@@ -216,6 +244,21 @@ class ContentsInfo(BaseApi):
       
       return jsonify({'data':rlist})
 
+    @expose('/hls_caption/<id>', methods=['GET'])
+    @has_access
+    def getHlsCaption(self, id):
+      
+      data = []
+      content, _ = selectRow('mp4_content_master',{'id':id})
+
+      if content.utube_content_caption:
+        for row in content.utube_content_caption:
+          if row.picked_yn.name == 'YES':
+            data = row.captions['data']
+            break    
+
+      return jsonify(data)
+
     @expose('/caption/<id>', methods=['GET'])
     @has_access
     def getCaption(self, id):
@@ -223,13 +266,13 @@ class ContentsInfo(BaseApi):
       data = []
       content, _ = selectRow('utube_content_master',{'content_id':id})
 
-      row, _ = selectRow('utube_content_caption',{'content_master_id':content.id,'picked_yn':'YES'})
+      if content.utube_content_caption:
+        for row in content.utube_content_caption:
+          if row.picked_yn.name == 'YES':
+            data = row.captions['data']
+            break    
 
-      if row:
-        data = row.captions['data']
-        #jlist =  yaml.safe_load(row.captions_yaml)
-        #data = [ j | {'id':i} for i, j in enumerate(jlist)]
-      else:
+      if not data:
         jlist = YouTubeTranscriptApi.get_transcript(id, languages=['en'])
         data = addIdNStart(jlist)
       
@@ -407,6 +450,25 @@ class UserManager(BaseApi):
                   , last_login  = g.user.last_login)
         
         return jsonify(resp), 201
+
+class HlsContent(BaseApi):
+
+    route_base = '/hls'
+
+    @expose('/view/<id>', methods=['GET'])
+    @has_access
+    def view(self, id=None):
+
+      row, _ = selectRow('mp4_content_master',{'id':int(id)})
+
+      if row:
+        return render_template('hls_show.html',\
+                id    = row.id,
+                content_description = row.description,
+                manifest_path = row.manifest_path,
+                base_template = appbuilder.base_template,
+                appbuilder    = appbuilder,
+          )
 
 class UTubeContent(BaseApi):
 
@@ -661,4 +723,6 @@ appbuilder.add_view(
 
 appbuilder.add_api(ContentsInfo)
 appbuilder.add_api(UTubeContent)
+appbuilder.add_api(HlsContent)
 appbuilder.add_api(UTubeContentMasterAPI)
+appbuilder.add_api(Mp4ContentMasterAPI)

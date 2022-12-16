@@ -43,6 +43,12 @@ class Dictionary(Model):
     def __repr__(self) -> str:
         return self.tags
 
+assoc_mp4_caption = Table('ref_mp4_caption', Model.metadata,
+                            Column('id', Integer, primary_key=True),
+                            Column('id_of_mp4', Integer, ForeignKey('mp4_content_master.id', ondelete='CASCADE')),
+                            Column('id_of_caption', Integer, ForeignKey('utube_content_caption.id', ondelete='CASCADE'))
+                        )
+
 class Mp4ContentMaster(Model):
     __tablename__ = "mp4_content_master"
     __table_args__ = {"comment":"mp4 Content file"}
@@ -54,17 +60,30 @@ class Mp4ContentMaster(Model):
     manifest_path   = Column(String(500), nullable=True, comment='m8u3 파일 url path')
     user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
     create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
-    
+
+    utube_content_caption  = relationship('UTubeContentCaption', secondary=assoc_mp4_caption, backref='mp4_content_master')
+
+    def __repr__(self) -> str:
+        return get_file_original_name(str(self.file))
+
     def download(self):
         return Markup(
             '<a href="'
-            + url_for('FileModelView.download', filename=str(self.file))
+            + url_for('Mp4ContentMasterView.download', filename=str(self.file))
             + '">Download</a>'
         )
 
     def get_filename(self):
         return get_file_original_name(str(self.file))
-    
+
+    def show_html(self):
+        return Markup('<a href="/hls/view/'+str(self.id)+'">VIEW</a>')
+
+assoc_utube_caption = Table('ref_utube_caption', Model.metadata,
+                            Column('id', Integer, primary_key=True),
+                            Column('id_of_utube', Integer, ForeignKey('utube_content_master.id', ondelete='CASCADE')),
+                            Column('id_of_caption', Integer, ForeignKey('utube_content_caption.id', ondelete='CASCADE'))
+                        )
 
 class UTubeContentMaster(Model):
     __tablename__ = "utube_content_master"
@@ -80,7 +99,7 @@ class UTubeContentMaster(Model):
     
     UniqueConstraint(content_id)
 
-    utube_content_caption = relationship('UTubeContentCaption', back_populates="utube_content_master")
+    utube_content_caption  = relationship('UTubeContentCaption', secondary=assoc_utube_caption, backref='utube_content_master')
 
     def __repr__(self) -> str:
         return '['+ self.content_id +']'+ self.content_description[0:30]
@@ -98,16 +117,13 @@ class UTubeContentCaption(Model):
     
     id = Column(Integer, primary_key=True)
     caption_id   = Column(String(100), nullable=False, comment='YouTube Contents caption info')
-    content_master_id = Column(Integer, ForeignKey('utube_content_master.id'), nullable=False)
-    captions     = Column(JSONB, comment='자막')
+    captions     = Column(JSONB, comment='자막(JSON)')
     picked_yn    = Column(Enum(YnEnum), info={'enum_class':YnEnum}, comment='대표 자막 여부')
-    captions_yaml = Column(Text, comment='자막')
+    captions_yaml = Column(Text, comment='자막(YAML)')
     user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
     create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
 
     UniqueConstraint(caption_id)
-
-    utube_content_master = relationship('UTubeContentMaster', back_populates="utube_content_caption")
 
     def __repr__(self) -> str:
         return self.caption_id

@@ -7,6 +7,7 @@
 <script src="/static/js/toastr_modi.js"></script>
 <script src="/static/js/tata.js"></script>
 <script src="/static/js/myjs.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     #function-buttons {
       width: 100%;
@@ -113,8 +114,8 @@
     <div>
       <h4>{{content_description}}</h4>
     </div>
-    <div>
-    <div id="player"></div>
+    <div id="video-area">
+    <video id="player"></video>
     </div>
 
     <script>
@@ -122,7 +123,6 @@
       var flag = 1;
 
       let playMode = 2;
-      let youtubeid = "{{content_id}}";
       let captions = [];
       let captions_new = [];
       
@@ -145,164 +145,43 @@
         });
       });
 
-      // 2. This code loads the IFrame Player API code asynchronously.
-      var tag = document.createElement('script');
+      var player = document.getElementById('player');
+      var videoSrc = '{{manifest_path}}'
 
-      tag.src = "https://www.youtube.com/iframe_api";
-      var firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-      // 3. This function creates an <iframe> (and YouTube player)
-      //    after the API code downloads.
-      var player;
       let pWidth = $( document ).width() <= 640 ? $( document ).width() : 640;
       let pHeight = Math.round(( pWidth * 3 ) / 4);
-      
-      function onYouTubeIframeAPIReady() {
-        player = new YT.Player('player', {
-          height: pHeight,
-          width: pWidth,
-          videoId: youtubeid,
-          //playerVars: { 'autoplay': 1, 'start':300, 'end':310, 'modestbranding':1},
-          playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs':0, 'rel':0, 'start':{{play_from}}, 'modestbranding':1},
-          events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-          }
-        });
 
-      }
+      var sheet = document.createElement('style')
+      sheet.innerHTML = '#player #video-area {width: ' + pWidth +'px; height: ' + pHeight + 'px;}';
+      document.body.appendChild(sheet);
 
-      function findItem(list, start, end, time) {
-        //var len    = list.length;
-        var median = Math.floor((end + start)/2)
-        var item   = list[median];
-        
-        if(item.start >= time){
-          return findItem(list, start, median, time), 0;
-        }else if(item.end < time){
-          return findItem(list, median, end, time), 0;
-        }else{
-          return item, median;
-        }
-         
-      }
-
-      function getSection(time) {
-        var item, inx = findItem(captions_new, 0, captions_new.length, time);
-        return item, inx;
-      }
-
-      function moveEnd(id, time) {
-
-        captions_new[id].end += time;
-        if(id!=captions_new.length-1){
-          captions_new[id+1].start += time;
-        }
-        
-      }
-
-      function moveStart(id, time) {
-
-        captions_new[id].start += time;
-        if(id!=0){
-          captions_new[id-1].end += time;
-        }
-
-      }
-      
-      // 4. The API will call this function when the video player is ready.
-      function onPlayerReady(event) {
-        event.target.playVideo();
-      }
-
-      // 5. The API calls this function when the player's state changes.
-      //    The function indicates that when playing a video (state=1),
-      //    the player should play for six seconds and then stop.
-      var done = false;
-      function onPlayerStateChange(event) {
-        if (event.data != YT.PlayerState.PLAYING) {
-          event.target.setPlaybackQuality('small');  // <-- WORKS!
-          document.getElementById("toggleDiv").innerHTML = 'Play  (q)';
-          flag=1;
-        }else{
-          document.getElementById("toggleDiv").innerHTML = 'Pause(q)';
-          flag=0;
-        }
-        //if (event.data == YT.PlayerState.PLAYING && !done) {
-        //  setTimeout(stopVideo, 6000);
-        //  done = true;
-        //}
-        //document.getElementById('status').html(event.data);
-        document.getElementById('status').innerHTML = getStatus(event.data);
-        document.getElementById('quality').innerHTML = "qual : "+player.getPlaybackQuality()
-        
-      }
-
-      function stopVideo() {
-        player.stopVideo();
-      }
-
-      function getStatus(status){
-        let rtn;
-        switch (status) {
-          case -1:
-            rtn = "unstarted";
-            break;
-          case 0:
-            rtn = "ended";
-            break;
-          case 1:
-            rtn = "playing";
-            break;
-          case 2:
-            rtn = "paused";
-            break;
-          case 3:
-            rtn = "buffering";
-            break;
-          case 5:
-            rtn = "video cued";
-        }
-        return rtn;
-      }
+      if (player.canPlayType('application/vnd.apple.mpegurl')) {
+          player.src = videoSrc;
+      } else if (Hls.isSupported()) {
+          var hls = new Hls();
+          hls.loadSource(videoSrc);
+          hls.attachMedia(player);
+	    }
 
       function myNormal() {
-        player.setPlaybackRate(1.0);
-        //player.playVideo();
+        player.playbackRate = 1.0;
       }
       function myFast() {
-        player.setPlaybackRate(1.25);
-        //player.playVideo();
+        player.playbackRate = 1.25
       }
       function mySlow() {
-        player.setPlaybackRate(0.75);
-        //player.playVideo();
+        player.playbackRate = 0.75
       }
-      function getContents() {
-        player.destroy();
-        player = new YT.Player('player', {
-          height: '360',
-          width: pWidth,
-          videoId: youtubeid,
-          //playerVars: { 'autoplay': 1, 'start':300, 'end':310, 'modestbranding':1},
-          playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs':0, 'rel':0, 'start':300, 'modestbranding':1},
-          events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-          }
-          });
-        //player.playVideo();
-      }
+
       function mypause() {
-        player.pauseVideo();
-        var ct = player.getCurrentTime();
-        var ct2 = Math.round(ct * 100) / 100
+        player.pause();
+        var ct = player.currentTime;
+        var ct2 = Math.round(ct * 100) / 100;
         document.getElementById('time').innerHTML = "sec : " + ct2;
       }
       function mystart() {
-        player.seekTo(player.getCurrentTime() - 0.5, true);        
-        player.playVideo();
+        player.currentTime -= 0.5;     
+        player.play();
       }
       
       function playById(id){
@@ -311,9 +190,8 @@
           current_caption=id
           captionScroll(current_caption);
         }
-
-        player.seekTo(captions[id].start , true);
-        player.playVideo();
+        player.currentTime = captions[id].start;
+        player.play();
 
       }
 
@@ -343,7 +221,7 @@
 
         $.ajax({
           type: "GET",
-          url: "/api/v1/mytube/caption/" + youtubeid
+          url: "/api/v1/mytube/hls_caption/{{id}}" 
         }).done(function (response) {
             //captions = jQuery.parseJSON(response);
             captions = response;
@@ -385,7 +263,7 @@
       getcaptions();
       // Update the count down every 1 second
       var x = setInterval(function() {
-        var ct = !player.getCurrentTime ? 0.0 : player.getCurrentTime();
+        var ct = !player.currentTime ? 0.0 : player.currentTime;
         var ct2 = Math.round(ct * 100) / 100
         document.getElementById('time').innerHTML = "sec : " + ct2;
         if(captions.length==0){
