@@ -178,10 +178,15 @@
         var ct = player.currentTime;
         var ct2 = Math.round(ct * 100) / 100;
         document.getElementById('time').innerHTML = "sec : " + ct2;
+        document.getElementById("toggleDiv").innerHTML = 'Play  (q)';
+        flag=1;
       }
+
       function mystart() {
         player.currentTime -= 0.5;     
         player.play();
+        document.getElementById("toggleDiv").innerHTML = 'Pause(q)';
+        flag=0;
       }
       
       function playById(id){
@@ -192,7 +197,8 @@
         }
         player.currentTime = captions[id].start;
         player.play();
-
+        document.getElementById("toggleDiv").innerHTML = 'Pause(q)';
+        flag=0;
       }
 
       function openToast(id){
@@ -312,35 +318,6 @@
         //$("caption-ul").get(x).scrollIntoView();
       }
 
-      function captionScroll2(x) {
-        var list = document.getElementById("caption-ul");
-        var targetLi = document.getElementById("li-"+x);
-        list.scrollTop = (targetLi.offsetTop - 10);
-      }
-
-      function binarySearch(items, value){
-
-        var startIndex  = 0,
-            stopIndex   = items.length - 1,
-            middle      = Math.floor((stopIndex + startIndex)/2);
-    
-        while((items[middle].start >= value || items[middle].end < value ) && startIndex < stopIndex){
-    
-            //adjust search area
-            if (value < items[middle]){
-                stopIndex = middle - 1;
-            } else if (value > items[middle]){
-                startIndex = middle + 1;
-            }
-    
-            //recalculate middle
-            middle = Math.floor((stopIndex + startIndex)/2);
-        }
-        
-        //make sure it's the right value
-        return (items[middle] != value) ? -1 : middle;
-      }
-
       function musicSearch(items, value){
         var rtn = -1;
         jQuery.each( items, function( i, val ) {
@@ -355,14 +332,10 @@
 
       function mytoggle(){
         if(flag==0){
-            //document.getElementById("toggleDiv").innerHTML = 'Play  (q)';
             mypause()
-            //flag=1;
         }
         else if(flag==1){
-            //document.getElementById("toggleDiv").innerHTML = 'Pause(q)';
             mystart()
-            //flag=0;
         }
       }
 
