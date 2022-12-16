@@ -115,7 +115,7 @@
       <h4>{{content_description}}</h4>
     </div>
     <div id="video-area">
-    <video id="player"></video>
+    <video id="player" style="width: 100%; height: 100%;"></video>
     </div>
 
     <script>
@@ -151,9 +151,9 @@
       let pWidth = $( document ).width() <= 640 ? $( document ).width() : 640;
       let pHeight = Math.round(( pWidth * 3 ) / 4);
 
-      var sheet = document.createElement('style')
-      sheet.innerHTML = '#player #video-area {width: ' + pWidth +'px; height: ' + pHeight + 'px;}';
-      document.body.appendChild(sheet);
+      //var sheet = document.createElement('style')
+      //sheet.innerHTML = '#player #video-area {width: ' + pWidth +'px; height: ' + pHeight + 'px;}';
+      //document.body.appendChild(sheet);
 
       if (player.canPlayType('application/vnd.apple.mpegurl')) {
           player.src = videoSrc;
