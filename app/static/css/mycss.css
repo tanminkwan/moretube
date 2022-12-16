@@ -1,0 +1,112 @@
+#function-buttons {
+  width: 100%;
+}
+#speed-buttons {
+    width: 100%;
+}
+.function-button {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid gray;
+  background-color: rgb(213, 247, 213);
+}
+.function-button:hover {
+  background-color: #ceeff7;
+}
+.speed-button {
+  width: 100%;
+}
+.w_subject {
+  background-color: rgb(204, 237, 247);
+}
+.w_verb {
+  background-color: rgb(202, 247, 202);                                                                                                                              
+}
+.w_dict {
+  text-decoration-line: underline;
+  font-weight: bold;
+}
+.p_relative {
+  background-color: rgb(252, 209, 242);
+}
+.p_title {
+  color: brown;
+  font-weight: bold;
+}
+.dict-word {
+  color:rgb(245, 245, 143);
+}
+.column0_1 {
+  color: red;
+  float:left;
+  font-weight: bold;
+  font-size: 12px;
+  width: 9%;
+  padding: 4px;
+  text-align: right;
+  /* height: 300px; Should be removed. Only for demonstration */
+}
+.column0_2 {
+  color: green;
+  float:left;
+  font-size: 11px;
+  width: 9%;
+  padding: 4px;
+  text-align: right;
+  /* height: 300px; Should be removed. Only for demonstration */
+}
+.column1 {
+  color: green;
+  float:left;
+  font-size: 11px;
+  width: 12%;
+  padding: 3px;
+  text-align: center;
+  /* height: 300px; Should be removed. Only for demonstration */
+}
+.column2 {
+  float: left;
+  width: 79%;
+  padding: 4px;
+  /* height: 300px; Should be removed. Only for demonstration */
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#nav-cap ul{height:300px; width:100%;}
+#nav-cap ul{overflow:hidden; overflow-y:scroll;}
+:root {
+  --default-line-height: 20px;
+}
+#caption-ul {
+  background-color: rgb(247, 229, 229);
+  height: var(--default-line-height);
+  list-style-type: none;
+  padding-left: 0;
+  overflow-y: scroll;
+  outline: 1px solid black;
+  scroll-snap-type: y mandatory;
+}
+.caption-li {
+  font-size: 16px;
+  line-height: var(--default-line-height);
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+.caption-li:hover {
+  background-color: yellow;
+}
+.player-info {
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 4px;
+}
+table, th, td {
+  border-collapse: collapse;
+  padding: 4px;
+}

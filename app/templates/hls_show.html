@@ -3,116 +3,15 @@
 {% block content %}
 <link rel="stylesheet" href="/static/css/toggle.css" />
 <link rel="stylesheet" href="/static/css/toastr_modi.css" />
+<link rel="stylesheet" href="/static/css/mycss.css" />
 <script src="/static/js/toggle.js"></script>
 <script src="/static/js/toastr_modi.js"></script>
-<script src="/static/js/tata.js"></script>
 <script src="/static/js/myjs.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <style>
-    #function-buttons {
-      width: 100%;
-    }
-    .function-button {
-      width: 100%;
-    }
-    .w_subject {
-      background-color: rgb(196, 236, 247);
-    }
-    .w_verb {
-      background-color: rgb(202, 247, 202);                                                                                                                              
-    }
-    .w_dict {
-      text-decoration-line: underline;
-      font-weight: bold;
-    }
-    .p_relative {
-      background-color: rgb(252, 209, 242);
-    }
-    .p_title {
-      color: brown;
-      font-weight: bold;
-    }
-    .dict-word {
-      color:rgb(245, 245, 143);
-    }
-    .column0_1 {
-      color: red;
-      float:left;
-      font-weight: bold;
-      font-size: 12px;
-      width: 9%;
-      padding: 4px;
-      text-align: right;
-      /* height: 300px; Should be removed. Only for demonstration */
-    }
-    .column0_2 {
-      color: green;
-      float:left;
-      font-size: 11px;
-      width: 9%;
-      padding: 4px;
-      text-align: right;
-      /* height: 300px; Should be removed. Only for demonstration */
-    }
-    .column1 {
-      color: green;
-      float:left;
-      font-size: 11px;
-      width: 12%;
-      padding: 3px;
-      text-align: center;
-      /* height: 300px; Should be removed. Only for demonstration */
-    }
-    .column2 {
-      float: left;
-      width: 79%;
-      padding: 4px;
-      /* height: 300px; Should be removed. Only for demonstration */
-    }
 
-    /* Clear floats after the columns */
-    .row:after {
-      content: "";
-      display: table;
-      clear: both;
-    }
-
-    #nav-cap ul{height:300px; width:100%;}
-    #nav-cap ul{overflow:hidden; overflow-y:scroll;}
-    :root {
-      --default-line-height: 20px;
-    }
-    #caption-ul {
-      background-color: rgb(247, 229, 229);
-      height: var(--default-line-height);
-      list-style-type: none;
-      padding-left: 0;
-      overflow-y: scroll;
-      outline: 1px solid black;
-      scroll-snap-type: y mandatory;
-    }
-    .caption-li {
-      font-size: 16px;
-      line-height: var(--default-line-height);
-      scroll-snap-align: start;
-      scroll-snap-stop: normal;
-    }
-    .caption-li:hover {
-      background-color: yellow;
-    }
-    .player-info {
-      border: 1px solid #dddddd;
-      text-align: left;
-      padding: 4px;
-    }
-    table, th, td {
-      border-collapse: collapse;
-      padding: 4px;
-    }
-  </style>
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     <div>
-      <h4>{{content_description}}</h4>
+      <h4><center>{{content_description}}</center></h4>
     </div>
     <div id="video-area">
     <video id="player" style="width: 100%; height: 100%;"></video>
@@ -341,31 +240,35 @@
 
     </script>
   <div>
-    <table>
+    <table id="speed-buttons">
+      <colgroup>
+        <col style="width: 46%">
+        <col style="width: 18%">
+        <col style="width: 18%">
+        <col style="width: 18%">
+      </colgroup>
       <tr>
-        <th>
-          <div id="stopmode" class="selectGroup"></div>
-        </th>
-        <th>
-          <button onclick="mySlow()" accesskey="v">Slow(v)</button>
-          <button onclick="myFast()" accesskey="c">Fast(c)</button>
-          <button onclick="myNormal()" accesskey="n">Normal(n)</button>
-        </th>
+        <th><div id="stopmode" class="selectGroup"></div></th>
+        <th><button class="speed-button" onclick="mySlow()" accesskey="v">Slow</button></th>
+        <th><button class="speed-button" onclick="myFast()" accesskey="c">Fast</button></th>
+        <th><button class="speed-button" onclick="myNormal()" accesskey="n">Normal</button></th>
       </tr>
     </table>
   </div>
   <div>
-    <table>
+    <table id="function-buttons">
+      <colgroup>
+        <col style="width: 25%">
+        <col style="width: 25%">
+        <col style="width: 25%">
+        <col style="width: 25%">
+      </colgroup>
       <tr>
         <th class="player-info" id="current"></th>
         <th class="player-info" id="time"></th>
         <th class="player-info" id="quality"></th>
         <th class="player-info" id="status"></th>
       </tr>
-    </table>
-  </div>
-  <div>
-    <table id="function-buttons">
       <tr>
         <th><button class="function-button" id="toggleDiv" onclick="mytoggle()" accesskey="q">Play (q)</button></th>
         <th><button class="function-button" onclick="playById(current_caption-1)" accesskey="z">&lt;Prev(z)</button></th>
