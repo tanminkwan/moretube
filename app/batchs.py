@@ -15,9 +15,16 @@ def transVideo(inputFile, outputPath, outputFile):
 
     outputFullFilename = outputPath + '/' + outputFile
     
+    
     input_stream = ffmpeg.input(inputFile, f='mp4')
     
-    output_stream = ffmpeg.output(input_stream, outputFullFilename, format='hls', start_number=0, hls_time=10, hls_list_size=0)
+    output_stream = ffmpeg.output(input_stream, outputFullFilename
+                    , format='hls'
+                    , start_number=0
+                    , hls_time=10
+#                    , vf='scale=480:270'
+#                    , video_bitrate='80k'
+                    , hls_list_size=0)
     
     ffmpeg.run(output_stream)
     

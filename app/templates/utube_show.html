@@ -7,6 +7,8 @@
 <script src="/static/js/toggle.js"></script>
 <script src="/static/js/toastr_modi.js"></script>
 <script src="/static/js/myjs.js"></script>
+<script src="/static/js/jquery.finger.js"></script>
+
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     <div>
       <h4><center>{{content_description}}</center></h4>
@@ -161,12 +163,14 @@
       
       function playById(id){
         
+        let rid = id<0 ? 0 : id;
+
         if(playMode==2){
-          current_caption=id
+          current_caption=rid
           captionScroll(current_caption);
         }
 
-        player.seekTo(captions[id].start , true);
+        player.seekTo(captions[rid].start , true);
         player.playVideo();
 
       }
@@ -193,50 +197,17 @@
 
       }
 
-      function getcaptions() {
+      getcaptions("/api/v1/mytube/caption/" + youtubeid);
 
-        $.ajax({
-          type: "GET",
-          url: "/api/v1/mytube/caption/" + youtubeid
-        }).done(function (response) {
-            //captions = jQuery.parseJSON(response);
-            captions = response;
-            //console.log(captions)
-            $("#caption-ul").empty();
-            $(response).each(function(i,val)
-            {
-              var start = (Math.round(val.start * 10) / 10);
-              var end   = (Math.round(val.end * 10) / 10);
-              
-              //var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
-              var line = '<div class="row" ondblclick="playById('+""+i+')">';
-              if(val.hasOwnProperty('text_c')){
-                line += '<div class="column0_1" onclick="openToast('+""+i+')">'
-              }else{
-                line += '<div class="column0_2">'
-              }
-              line += ""+i+'</div><div class="column1">'+"~ "+fancyTimeFormat(end)+'</div><div class="column2">'+val.text+'</div></div>';
-              //console.log(val.duration)
-              //$.each(val,function(key,val)
-              //{
-              //  line = line + key + ": " + val + " "; 
-                //console.log(key + " : " + val);     
-              //});
-              $("#caption-ul").append('<li class="caption-li" id="li-'+ i +'">'+ line +"</li>");
-              //console.log(i + " : " + val);
+      $.Finger  = {
+        pressDuration: 1000,
+      };
 
-            });
+      $('.row').on('press', '.row', function() {
+        var s_id = $(this).find('[class^=column0]').text();
+        playById(parseInt(s_id));
+      });
 
-            window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
-            
-        }).fail(function (response) {
-            console.log();
-        });
-
-        console.log('captions')
-      }
-
-      getcaptions();
       // Update the count down every 1 second
       var x = setInterval(function() {
         var ct = !player.getCurrentTime ? 0.0 : player.getCurrentTime();

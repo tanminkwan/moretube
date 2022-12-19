@@ -66,11 +66,11 @@
 }
 .column2 {
   float: left;
-  width: 79%;
+  width: 70%;
   padding: 4px;
   /* height: 300px; Should be removed. Only for demonstration */
 }
-
+  
 /* Clear floats after the columns */
 .row:after {
   content: "";
