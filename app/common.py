@@ -6,6 +6,8 @@ import socket
 from datetime import datetime
 import yaml
 import traceback
+from youtube_transcript_api import YouTubeTranscriptApi
+from io import BytesIO, StringIO
 
 def get_user():
     return g.user.username
@@ -19,8 +21,33 @@ def get_hostname():
 def get_uuid():
     return str(uuid.uuid4())[-12:]
 
+def getStrfile(text):
+    output = BytesIO(bytes(text,'utf-8'))
+    output.seek(0)
+    return output
+
 def getAlNumCnt(text):
     return len([le for le in text if le.isalnum()])
+
+def getUtubeCap(id):
+    return YouTubeTranscriptApi.get_transcript(id, languages=['en'])
+
+def getUtubeCapYaml(id):
+
+    jlist = getUtubeCap(id)
+    
+    data = []
+    for j in jlist:
+      del j['duration']
+      data.append(j)
+
+    return str(yaml.dump(data))
+
+def getUtubeCapYamlFile(id):
+
+    data_s = getUtubeCapYaml(id)
+
+    return getStrfile(data_s)
 
 class YnEnum(enum.Enum):
     YES = 'YES'

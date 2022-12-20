@@ -9,16 +9,14 @@ from .models import Dictionary, Mp4ContentMaster, UTubeContentMaster, UTubeConte
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
 from .queries import selectRow, selectRows, selectDict, applyDicts
-from .common import VerifyYaml, getAlNumCnt
+from .common import VerifyYaml, getAlNumCnt, getStrfile, getUtubeCap, getUtubeCapYamlFile
 from .batchs import transVideo
 
-from io import BytesIO, StringIO
 import os
 import re
 import json
 import yaml
 import traceback
-from youtube_transcript_api import YouTubeTranscriptApi
 
 REPMAP = [
   ('(s(','<span class="w_subject">'),
@@ -133,8 +131,7 @@ class UTubeContentCaptionView(ModelView):
     def download_subtitles(self, item):
 
       data_s = item[0].captions_yaml
-      output = BytesIO(bytes(data_s,'utf-8'))
-      output.seek(0)
+      output = getStrfile(data_s)
 
       return send_file(output, attachment_filename=str(item[0].id)+'_caption.yaml', as_attachment=True)
 
@@ -148,12 +145,18 @@ class Mp4ContentMasterView(ModelView):
 class UTubeContentMasterView(ModelView):
     datamodel = SQLAInterface(UTubeContentMaster)
     list_title = 'YouTube Contents'
-    list_columns = ['show_html','content_description','content_id','download_yaml','play_from','play_to','create_on']
+    list_columns = ['show_html','content_description','content_id','utube_content_caption','play_from','play_to','create_on']
     #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
 
     related_views = [UTubeContentCaptionView]
+
+    @action("download_utubecaps", "Download Utube Captions", "", "fa-rocket", single=True)
+    def download_utubecaps(self, item):
+
+      output = getUtubeCapYamlFile(item[0].content_id)
+      return send_file(output, attachment_filename=str(item[0].content_id)+'_utube_cap.yaml', as_attachment=True)
 
 class UTubeContentMasterAPI(ModelRestApi):
 
@@ -163,7 +166,7 @@ class UTubeContentMasterAPI(ModelRestApi):
 
     datamodel = SQLAInterface(UTubeContentMaster)
 
-    list_columns = ['show_html','content_description','content_id','download_yaml','play_from','play_to','user_id','create_on']
+    list_columns = ['show_html','content_description','content_id','play_from','play_to','user_id','create_on']
 
 class Mp4ContentMasterAPI(ModelRestApi):
 
@@ -287,7 +290,7 @@ class ContentsInfo(BaseApi):
             break    
 
       if not data:
-        jlist = YouTubeTranscriptApi.get_transcript(id, languages=['en'])
+        jlist = getUtubeCap(id)
         data = addIdNStart(jlist)
       
       return jsonify(data)
@@ -296,22 +299,8 @@ class ContentsInfo(BaseApi):
     @has_access
     def getCaptionYaml(self, id):
       
-      jlist = YouTubeTranscriptApi.get_transcript(id, languages=['en'])
-      #data = [ j | {'id':i,'end':round(j['start']+j['duration'],2)} for i, j in enumerate(jlist)]
-      #data = [ j | {'id':i,'end':round(jlist[i+1 if i+1!=len(jlist) else i]['start']+0.1,2)} for i, j in enumerate(jlist)]
-      #data = [ j | {'text':j['text']} for j in jlist]
-      data = []
-      for j in jlist:
-        del j['duration']
-        data.append(j)
-
-      data_y = yaml.dump(data)
-      
-      data_s = str(data_y)
-      output = BytesIO(bytes(data_s,'utf-8'))
-      output.seek(0)
-
-      return send_file(output, attachment_filename=id+'_test.yaml', as_attachment=True)    
+      output = getUtubeCapYamlFile(id)
+      return send_file(output, attachment_filename=id+'_utube_cap.yaml', as_attachment=True)    
 
     @expose('/dictionary_yaml', methods=['GET'])
     @has_access
@@ -330,9 +319,7 @@ class ContentsInfo(BaseApi):
 
       data_y = yaml.dump(data, sort_keys=False, allow_unicode=True)
       
-      data_s = str(data_y)
-      output = BytesIO(bytes(data_s,'utf-8'))
-      output.seek(0)
+      output = getStrfile(str(data_y))
 
       return send_file(output, attachment_filename='_dictionary.yaml', as_attachment=True)    
 

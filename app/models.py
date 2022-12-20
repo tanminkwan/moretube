@@ -107,9 +107,6 @@ class UTubeContentMaster(Model):
     def show_html(self):
         return Markup('<a href="/utube/view/'+str(self.id)+'">VIEW</a>')
 
-    def download_yaml(self):
-        return Markup('<a href="/api/v1/mytube/caption_yaml/'+str(self.content_id)+'">Download Captions</a>')
-
 class UTubeContentCaption(Model):
 
     __tablename__ = "utube_content_caption"
