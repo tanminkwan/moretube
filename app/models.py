@@ -8,7 +8,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
-from .common import get_user, get_now, get_hostname, YnEnum
+from .common import get_user, get_now, get_hostname, YnEnum, DifficultyEnum
 from .queries import get_thumbnailpath
 from . import app
 
@@ -58,6 +58,7 @@ class Mp4ContentMaster(Model):
     file            = Column(FileColumn, nullable=False)
     description     = Column(String(500), nullable=True, comment='설명')
     manifest_path   = Column(String(500), nullable=True, comment='m8u3 파일 url path')
+    difficulty   = Column(Enum(DifficultyEnum), info={'enum_class':DifficultyEnum}, comment='난이도')
     user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
     create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
 
@@ -94,6 +95,7 @@ class UTubeContentMaster(Model):
     play_from    = Column(Integer, nullable=False, comment='')
     play_to      = Column(Integer, nullable=False, comment='')
     content_description  = Column(String(500), nullable=True, comment='설명')
+    difficulty   = Column(Enum(DifficultyEnum), info={'enum_class':DifficultyEnum}, comment='난이도')
     user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
     create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
     
@@ -117,6 +119,7 @@ class UTubeContentCaption(Model):
     captions     = Column(JSONB, comment='자막(JSON)')
     picked_yn    = Column(Enum(YnEnum), info={'enum_class':YnEnum}, comment='대표 자막 여부')
     captions_yaml = Column(Text, comment='자막(YAML)')
+    caption_len  = Column(Integer, comment='자막 전체 길이')
     user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
     create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
 

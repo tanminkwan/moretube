@@ -53,6 +53,15 @@ class YnEnum(enum.Enum):
     YES = 'YES'
     NO  = 'NO'
 
+class DifficultyEnum(enum.Enum):
+    LEVEL1 = 'Level 1'
+    LEVEL2 = 'Level 2'
+    LEVEL3 = 'Level 3'
+    LEVEL4 = 'Level 4'
+    LEVEL5 = 'Level 5'
+    LEVEL6 = 'Level 6'
+    LEVEL7 = 'Level 7'
+
 class VerifyYaml(object):
 
     def __init__(self) -> None:

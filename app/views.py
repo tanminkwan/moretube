@@ -51,6 +51,9 @@ def _addID(jlist):
 def _addLen(jlist):
     return [ j | {'len':getAlNumCnt(re.sub(r'<[^>]*>','',(j['text'] if j.get('text') else '')))} for j in jlist]
 
+def _getTotLen(jlist):
+    return sum([j['len'] for j in jlist])
+
 def addIdNStart(jlist):
 
     jlist2 = _addEnd(jlist)
@@ -88,6 +91,7 @@ def update_stream_info(mapper, connection, target):
     
     jdata = convertYcap2Jcap(target.captions_yaml)
     target.captions = {'data':jdata}
+    target.caption_len = _getTotLen(jdata)
 
     print('UTubeContentCaption update!!')
 
@@ -96,6 +100,7 @@ def update_stream_info(mapper, connection, target):
     
     jdata = convertYcap2Jcap(target.captions_yaml)
     target.captions = {'data':jdata}
+    target.caption_len = _getTotLen(jdata)
 
     print('UTubeContentCaption insert!!')
 
@@ -110,9 +115,9 @@ class DictionaryView(ModelView):
 class UTubeContentCaptionView(ModelView):
     datamodel = SQLAInterface(UTubeContentCaption)
     list_title = 'YouTube Content Captions'
-    list_columns = ['utube_content_master','show_html','caption_id','picked_yn','create_on']
-    edit_exclude_columns = ['captions','id','create_on']
-    add_exclude_columns = ['captions','id','create_on']
+    list_columns = ['utube_content_master','show_html','caption_id','caption_len','picked_yn','create_on']
+    edit_exclude_columns = ['captions','caption_len', 'id','create_on']
+    add_exclude_columns = ['captions','caption_len','id','create_on']
     search_exclude_columns = ['captions']
 
     label_columns = {
@@ -138,14 +143,14 @@ class UTubeContentCaptionView(ModelView):
 class Mp4ContentMasterView(ModelView):
     datamodel = SQLAInterface(Mp4ContentMaster)
     list_title = 'Mp4 Contents'
-    list_columns = ['show_html','get_filename','description','download','create_on']
+    list_columns = ['show_html','get_filename','description','difficulty','download','create_on']
     edit_exclude_columns = ['id','file','create_on']
     add_exclude_columns = ['id','manifest_path','create_on']
 
 class UTubeContentMasterView(ModelView):
     datamodel = SQLAInterface(UTubeContentMaster)
     list_title = 'YouTube Contents'
-    list_columns = ['show_html','content_description','content_id','utube_content_caption','play_from','play_to','create_on']
+    list_columns = ['show_html','content_description','content_id','utube_content_caption','difficulty','create_on']
     #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
