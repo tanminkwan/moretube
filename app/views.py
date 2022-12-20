@@ -3,12 +3,13 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import BaseView, ModelView, ModelRestApi, has_access
 from flask_appbuilder.filemanager import FileManager, uuid_namegen
 from flask_appbuilder.api import BaseApi, expose, protect
+from flask_appbuilder.actions import action
 from .models import Dictionary, Mp4ContentMaster, UTubeContentMaster, UTubeContentCaption\
   , ContentMaster, TestTable, EcamFile, Program
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
 from .queries import selectRow, selectRows, selectDict, applyDicts
-from .common import VerifyYaml
+from .common import VerifyYaml, getAlNumCnt
 from .batchs import transVideo
 
 from io import BytesIO, StringIO
@@ -49,6 +50,9 @@ def _removeEmpty(jlist):
 def _addID(jlist):
     return [ j | {'id':i} for i, j in enumerate(jlist)]
 
+def _addLen(jlist):
+    return [ j | {'len':getAlNumCnt(re.sub(r'<[^>]*>','',(j['text'] if j.get('text') else '')))} for j in jlist]
+
 def addIdNStart(jlist):
 
     jlist2 = _addEnd(jlist)
@@ -59,7 +63,8 @@ def convertYcap2Jcap(ycap):
     jlist =  yaml.safe_load(decoed_ycap)
     jlist2 = _addEnd(jlist)
     jlist3 =_removeEmpty(jlist2)
-    return _addID(jlist3)
+    jlist4 = _addLen(jlist3)
+    return _addID(jlist4)
 
 @db.event.listens_for(Mp4ContentMaster, 'before_insert')
 def transecode_mp4(mapper, connection, target):
@@ -123,6 +128,15 @@ class UTubeContentCaptionView(ModelView):
     validators_columns = {
       'captions_yaml':[VerifyYaml()],
     }
+
+    @action("download_subtitles", "Download Subtitles", "", "fa-rocket", single=True)
+    def download_subtitles(self, item):
+
+      data_s = item[0].captions_yaml
+      output = BytesIO(bytes(data_s,'utf-8'))
+      output.seek(0)
+
+      return send_file(output, attachment_filename=str(item[0].id)+'_caption.yaml', as_attachment=True)
 
 class Mp4ContentMasterView(ModelView):
     datamodel = SQLAInterface(Mp4ContentMaster)

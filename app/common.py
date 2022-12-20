@@ -19,6 +19,9 @@ def get_hostname():
 def get_uuid():
     return str(uuid.uuid4())[-12:]
 
+def getAlNumCnt(text):
+    return len([le for le in text if le.isalnum()])
+
 class YnEnum(enum.Enum):
     YES = 'YES'
     NO  = 'NO'
