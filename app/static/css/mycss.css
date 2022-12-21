@@ -78,8 +78,15 @@
   clear: both;
 }
 
-#nav-cap ul{height:300px; width:100%;}
-#nav-cap ul{overflow:hidden; overflow-y:scroll;}
+#nav-cap ul{
+    height:300px; 
+    width:100%;
+    overflow:hidden; 
+    overflow-y:scroll; 
+    overscroll-behavior: contain;
+    user-select: none;
+}
+
 :root {
   --default-line-height: 20px;
 }
