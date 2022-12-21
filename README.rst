@@ -23,4 +23,9 @@ Base Skeleton to start your application using Flask-AppBuilder
     # db migration code 실행
     $ flask db upgrade
 
+- Favicon Setting::
+
+    # flask_appbuilder 원본 수정
+    $ flask_appbuilder/templates/appbuilder/init.html
+    $ <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 That's it!!

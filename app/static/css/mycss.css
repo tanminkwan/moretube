@@ -78,6 +78,10 @@
   clear: both;
 }
 
+html, body {
+    overscroll-behavior: contain;
+}
+
 #nav-cap ul{
     height:300px; 
     width:100%;
