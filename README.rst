@@ -25,7 +25,12 @@ Base Skeleton to start your application using Flask-AppBuilder
 
 - Favicon Setting::
 
+    # favicon 파일 저장
+    app/static/ 에 favicon.ico 파일 저장
     # flask_appbuilder 원본 수정
-    $ flask_appbuilder/templates/appbuilder/init.html
-    $ <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    대상파일 : 
+    flask_appbuilder/templates/appbuilder/init.html
+    head tag 안에 code 추가 : 
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
 That's it!!
