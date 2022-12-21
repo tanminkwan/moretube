@@ -1,8 +1,11 @@
+button {
+  user-select: none; 
+}
 #function-buttons {
   width: 100%;
 }
 #speed-buttons {
-    width: 100%;
+  width: 100%;
 }
 .function-button {
   width: 100%;
