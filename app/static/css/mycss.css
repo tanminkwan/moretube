@@ -75,7 +75,7 @@ button {
 }
   
 /* Clear floats after the columns */
-.row:after {
+.row-li:after {
   content: "";
   display: table;
   clear: both;

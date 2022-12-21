@@ -69,7 +69,7 @@ function getcaptions(url) {
         var end   = (Math.round(val.end * 10) / 10);
         
         //var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
-        var line = '<div class="row">';
+        var line = '<div class="row-li">';
         if(val.hasOwnProperty('text_c')){
           line += '<div class="column0_1" onclick="openToast('+""+i+')">'
         }else{

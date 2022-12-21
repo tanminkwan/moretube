@@ -10,11 +10,12 @@
 <script src="/static/js/jquery.finger.js"></script>
 
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
-    <div>
-      <h4><center>{{content_description}}</center></h4>
-    </div>
-    <div>
-    <div id="player" style="pointer-events: none;"></div>
+    <div style="position:relative;">
+      <div style="position:absolute;width: 100%;">
+        <h4 style="text-align: center;background-color:whitesmoke">{{content_description}}</h4>
+      </div>
+      <div id="player" style="pointer-events: none;">
+      </div>
     </div>
 
     <script>
@@ -53,7 +54,7 @@
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
       let pWidth = $( document ).width() <= 640 ? $( document ).width() : 640;
-      let pHeight = Math.round(( pWidth * 3 ) / 4);
+      let pHeight = Math.round(( pWidth * 3 ) / 6);
       
       function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
@@ -135,21 +136,6 @@
       function mySlow() {
         player.setPlaybackRate(0.75);
       }
-      function getContents() {
-        player.destroy();
-        player = new YT.Player('player', {
-          height: '360',
-          width: pWidth,
-          videoId: youtubeid,
-          //playerVars: { 'autoplay': 1, 'start':300, 'end':310, 'modestbranding':1},
-          playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs':0, 'rel':0, 'start':300, 'modestbranding':1},
-          events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-          }
-          });
-        //player.playVideo();
-      }
       function mypause() {
         player.pauseVideo();
         var ct = player.getCurrentTime();
@@ -203,7 +189,7 @@
         pressDuration: 1000,
       };
 
-      $('.row').on('press', '.row', function() {
+      $('.row').on('press', '.row-li', function() {
         var s_id = $(this).find('[class^=column0]').text();
         playById(parseInt(s_id));
       });
