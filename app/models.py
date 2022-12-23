@@ -8,7 +8,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
-from .common import get_user, get_now, get_hostname, YnEnum, DifficultyEnum
+from .common import get_user, get_now, get_hostname, YnEnum, DifficultyEnum, SplitTypeEnum
 from .queries import get_thumbnailpath
 from . import app
 
@@ -130,6 +130,27 @@ class UTubeContentCaption(Model):
 
     def show_html(self):
         return Markup('<a href="/utube/textview/'+str(self.id)+'">VIEW</a>')
+
+class SplitCaption(Model):
+
+    __tablename__ = "split_caption"
+    __table_args__ = {"comment":"학습량 분할 정보"}
+    
+    id = Column(Integer, primary_key=True)
+    split_caption_id  = Column(String(100), nullable=False, comment='학습량 분할 정보')
+    contentcaption_id = Column(Integer, ForeignKey('utube_content_caption.id'), nullable=False)
+    split_type   = Column(Enum(SplitTypeEnum), info={'enum_class':SplitTypeEnum}, nullable=False, comment='분할 기준')
+    split_value  = Column(String(300), nullable=False)
+    split_title  = Column(String(300))
+    user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
+    create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
+
+    utube_content_caption = relationship('UTubeContentCaption')
+
+    UniqueConstraint(split_caption_id)
+
+    def __repr__(self) -> str:
+        return self.split_caption_id
 
 class ContentMaster(Model):
 

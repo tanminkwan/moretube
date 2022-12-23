@@ -6,10 +6,11 @@
 <script src="/static/js/myjs.js"></script>
 <style>
     .i_text {
-        background-color: rgb(222, 247, 222);
+        background-color: rgb(228, 247, 228);
     }
     .i_text_c {
         color: brown;
+        width: 90%;
     }
     .w_dict {
       text-decoration-line: underline;
@@ -22,12 +23,20 @@
     <h4>{{title}}</h4>
 </div>
 <div>
-    {% for jrow in jcontents_list %}
-    <p class="i_text">{{jrow['id']}} : {{jrow['text']|safe}}</p>
-    {# if jrow.get('text_c') #}
-        <p class="i_text_c">{{jrow['text_c']|safe}}</p>
-    {# endif #}
+    {% set summ = {'total': 0} %}
+    <table style="width: 100%;">
+        {% for jrow in jcontents_list %}        
+        {% if summ.update({'total':summ.total + jrow['len']}) %}{% endif %}
+        <tr>
+            <td><div class="i_text">{{jrow['id']}} : {{jrow['text']|safe}}</div></td><td><div style="text-align:right;color: brown;">{{summ.total}}</div></td>
+        </tr>
+        {# if jrow.get('text_c') #}
+        <tr>
+            <td><p class="i_text_c">{{jrow['text_c']|safe}}</p></td><td></td>
+        </tr>
+        {# endif #}
     {% endfor %}
+    </table>
 </div>
 
 {% endblock %}

@@ -62,6 +62,11 @@ class DifficultyEnum(enum.Enum):
     LEVEL6 = 'Level 6'
     LEVEL7 = 'Level 7'
 
+class SplitTypeEnum(enum.Enum):
+    FIXED_WEIGHT = 'Fixed sized sections'
+    SAME_WEIGHT  = 'Same sized sections'
+    CUSTOM_DEFINED = 'Custom defined sections'
+
 class VerifyYaml(object):
 
     def __init__(self) -> None:

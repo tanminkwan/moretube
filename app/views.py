@@ -5,7 +5,7 @@ from flask_appbuilder.filemanager import FileManager, uuid_namegen
 from flask_appbuilder.api import BaseApi, expose, protect
 from flask_appbuilder.actions import action
 from .models import Dictionary, Mp4ContentMaster, UTubeContentMaster, UTubeContentCaption\
-  , ContentMaster, TestTable, EcamFile, Program
+  , ContentMaster, TestTable, EcamFile, Program, SplitCaption
 from . import appbuilder, db, app
 from .scheduled_jobs import job_create_job
 from .queries import selectRow, selectRows, selectDict, applyDicts
@@ -112,6 +112,13 @@ class DictionaryView(ModelView):
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
 
+class SplitCaptionView(ModelView):
+    datamodel = SQLAInterface(SplitCaption)
+    list_title = 'Split Caption'
+    list_columns = ['utube_content_caption','split_caption_id','caption_id','split_type','split_value','create_on']
+    edit_exclude_columns = ['id','create_on']
+    add_exclude_columns = ['id','create_on']
+
 class UTubeContentCaptionView(ModelView):
     datamodel = SQLAInterface(UTubeContentCaption)
     list_title = 'YouTube Content Captions'
@@ -132,6 +139,8 @@ class UTubeContentCaptionView(ModelView):
       'captions_yaml':[VerifyYaml()],
     }
 
+    related_views = [SplitCaptionView]
+    
     @action("download_subtitles", "Download Subtitles", "", "fa-rocket", single=True)
     def download_subtitles(self, item):
 
@@ -279,7 +288,7 @@ class ContentsInfo(BaseApi):
             data = row.captions['data']
             break    
 
-      return jsonify(data)
+      return jsonify({'data':data})
 
     @expose('/caption/<id>', methods=['GET'])
     @has_access
@@ -298,7 +307,7 @@ class ContentsInfo(BaseApi):
         jlist = getUtubeCap(id)
         data = addIdNStart(jlist)
       
-      return jsonify(data)
+      return jsonify({'data':data})
 
     @expose('/caption_yaml/<id>', methods=['GET'])
     @has_access
@@ -715,6 +724,13 @@ appbuilder.add_view(
 appbuilder.add_view(
     UTubeContentCaptionView,
     "Captions",
+    icon = "fa-folder-open-o",
+    category = "Contents",
+    category_icon = "fa-envelope"
+)
+appbuilder.add_view(
+    SplitCaptionView,
+    "Caption 분할",
     icon = "fa-folder-open-o",
     category = "Contents",
     category_icon = "fa-envelope"

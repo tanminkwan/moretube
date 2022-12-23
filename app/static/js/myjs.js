@@ -60,14 +60,15 @@ function getcaptions(url) {
     url: url
   }).done(function (response) {
       //captions = jQuery.parseJSON(response);
-      captions = response;
+      captions = response.data;
       //console.log(captions)
       $("#caption-ul").empty();
-      $(response).each(function(i,val)
+      $(response.data).each(function(i,val)
       {
+
         var start = (Math.round(val.start * 10) / 10);
         var end   = (Math.round(val.end * 10) / 10);
-        
+          
         //var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
         var line = '<div class="row-li">';
         if(val.hasOwnProperty('text_c')){
@@ -77,14 +78,7 @@ function getcaptions(url) {
         }
         line += ""+i+'</div><div class="column1">'+"~ "+fancyTimeFormat(end)+
           '</div><div class="column2">'+val.text+'</div></div>';
-        //console.log(val.duration)
-        //$.each(val,function(key,val)
-        //{
-        //  line = line + key + ": " + val + " "; 
-          //console.log(key + " : " + val);     
-        //});
         $("#caption-ul").append('<li class="caption-li" id="li-'+ i +'">'+ line +"</li>");
-        //console.log(i + " : " + val);
 
       });
 

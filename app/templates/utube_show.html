@@ -3,17 +3,15 @@
 {% block content %}
 <link rel="stylesheet" href="/static/css/toggle.css" />
 <link rel="stylesheet" href="/static/css/toastr_modi.css" />
-<link rel="stylesheet" href="/static/css/mycss.css" />
+<link rel="stylesheet" href="/static/css/mycss.css?version=20221223.02" />
 <script src="/static/js/toggle.js"></script>
 <script src="/static/js/toastr_modi.js"></script>
-<script src="/static/js/myjs.js"></script>
+<script src="/static/js/myjs.js?version=20221223.02"></script>
 <script src="/static/js/jquery.finger.js"></script>
 
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
-    <div style="position:relative;">
-      <div style="position:absolute;width: 100%;">
-        <h4 style="text-align: center;background-color:whitesmoke">{{content_description}}</h4>
-      </div>
+    <div id="video-area">
+      <div id="video-title">{{content_description}}</div>
       <div id="player" style="pointer-events: none;">
       </div>
     </div>
@@ -127,21 +125,19 @@
         return rtn;
       }
 
-      function myNormal() {
-        player.setPlaybackRate(1.0);
+      function mySpeed(me, speed) {
+        $('#speed-buttons').find('.button-selected').removeClass("button-selected")
+        $(me).addClass('button-selected');        
+        player.setPlaybackRate(speed);
       }
-      function myFast() {
-        player.setPlaybackRate(1.25);
-      }
-      function mySlow() {
-        player.setPlaybackRate(0.75);
-      }
+
       function mypause() {
         player.pauseVideo();
         var ct = player.getCurrentTime();
         var ct2 = Math.round(ct * 100) / 100
         document.getElementById('time').innerHTML = "sec : " + ct2;
       }
+
       function mystart() {
         player.seekTo(player.getCurrentTime() - 0.5, true);        
         player.playVideo();
@@ -276,9 +272,9 @@
       </colgroup>
       <tr>
         <th><div id="stopmode" class="selectGroup"></div></th>
-        <th><button class="speed-button" onclick="mySlow()" accesskey="v">Slow</button></th>
-        <th><button class="speed-button" onclick="myFast()" accesskey="c">Fast</button></th>
-        <th><button class="speed-button" onclick="myNormal()" accesskey="n">Normal</button></th>
+        <th><button class="btn speed-button" onclick="mySpeed(this, 0.75)" accesskey="v">Slow</button></th>
+        <th><button class="btn speed-button" onclick="mySpeed(this, 1.25)" accesskey="c">Fast</button></th>
+        <th><button class="btn speed-button" onclick="mySpeed(this, 1.0)" accesskey="n">Normal</button></th>
       </tr>
     </table>
   </div>

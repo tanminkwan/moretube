@@ -1,3 +1,17 @@
+#video-area {
+    position:relative;
+}
+#video-title {
+    position:absolute;
+    top: 6%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    background-color:rgb(226, 222, 222);
+}
 button {
   user-select: none; 
 }
@@ -18,6 +32,10 @@ button {
 }
 .speed-button {
   width: 100%;
+  border: 1px solid #aaaaaa;
+}
+.button-selected {
+  background-color: #e7f1ae;
 }
 .w_subject {
   background-color: rgb(204, 237, 247);
