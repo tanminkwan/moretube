@@ -114,6 +114,9 @@ class DictionaryView(ModelView):
 
 class SplitCaptionView(ModelView):
     datamodel = SQLAInterface(SplitCaption)
+    add_template = 'add_simulation.html'
+    edit_template = 'edit_simulation.html'
+    
     list_title = 'Split Caption'
     list_columns = ['utube_content_caption','split_caption_id','caption_id','split_type','split_value','create_on']
     edit_exclude_columns = ['id','create_on']
