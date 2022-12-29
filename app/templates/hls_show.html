@@ -3,10 +3,10 @@
 {% block content %}
 <link rel="stylesheet" href="/static/css/toggle.css" />
 <link rel="stylesheet" href="/static/css/toastr_modi.css" />
-<link rel="stylesheet" href="/static/css/mycss.css?version=20221223.02" />
+<link rel="stylesheet" href="/static/css/mycss.css?version=20221228.16" />
 <script src="/static/js/toggle.js"></script>
 <script src="/static/js/toastr_modi.js"></script>
-<script src="/static/js/myjs.js?version=20221223.02"></script>
+<script src="/static/js/myjs.js?version=20221228.16"></script>
 <script src="/static/js/jquery.finger.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
@@ -115,7 +115,28 @@
 
       }
 
-      getcaptions("/api/v1/mytube/hls_caption/{{id}}");
+      //getcaptions("/api/v1/mytube/hls_caption/{{id}}");
+      var subtitles = getSubtitles("/api/v1/mytube/hls_caption/{{id}}");
+      captions = subtitles.data;
+      
+      var division = [];
+      var division_title = "";
+
+      if(subtitles.hasOwnProperty('division')){
+        division = subtitles.division;        
+      }
+
+      if(subtitles.hasOwnProperty('division')){
+        division_title = subtitles.division_title;        
+      }
+
+      $(window).on('load', function(){
+        retrieveSubtitles(subtitles.data, "#caption-ul"
+          , isWeight=false
+          , division=division
+          , division_title=division_title);
+        window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
+      });
 
       $.Finger  = {
         pressDuration: 1000,
@@ -166,7 +187,8 @@
         if(x==0){
           $('#caption-ul').scrollTop($('#caption-ul li:nth-child(1)').position().top - $('#caption-ul li:first').position().top);
         }else{
-          $('#caption-ul').scrollTop($('#caption-ul li:nth-child('+x+')').position().top - $('#caption-ul li:first').position().top);
+          //$('#caption-ul').scrollTop($('#caption-ul li:nth-child('+x+')').position().top - $('#caption-ul li:first').position().top);
+          $('#caption-ul').scrollTop($('#caption-ul #li-'+x).position().top - $('#caption-ul li:first').position().top);
         }
         $('#li-'+x).css("background-color","white")
         //$("caption-ul").get(x).scrollIntoView();

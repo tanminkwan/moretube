@@ -125,11 +125,19 @@ class UTubeContentCaption(Model):
 
     UniqueConstraint(caption_id)
 
+    split_caption = relationship('SplitCaption')
+
     def __repr__(self) -> str:
         return self.caption_id
 
     def show_html(self):
         return Markup('<a href="/utube/textview/'+str(self.id)+'">VIEW</a>')
+
+assoc_user_splitcaption = Table('ref_user_splitcaption', Model.metadata,
+                            Column('id', Integer, primary_key=True),
+                            Column('id_of_user', Integer, ForeignKey('ab_user.id', ondelete='CASCADE')),
+                            Column('id_of_splitcaption', Integer, ForeignKey('split_caption.id', ondelete='CASCADE'))
+                        )
 
 class SplitCaption(Model):
 
@@ -146,6 +154,8 @@ class SplitCaption(Model):
     create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
 
     utube_content_caption = relationship('UTubeContentCaption')
+
+    ab_user = relationship('User', secondary=assoc_user_splitcaption, backref='split_caption')
 
     UniqueConstraint(split_caption_id)
 

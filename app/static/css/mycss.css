@@ -11,6 +11,7 @@
     font-weight: bold;
     text-align: center;
     background-color:rgb(226, 222, 222);
+    user-select: none;
 }
 button {
   user-select: none; 
@@ -80,16 +81,22 @@ button {
   color: green;
   float:left;
   font-size: 11px;
-  width: 12%;
+  width: 14%;
   padding: 3px;
   text-align: center;
   /* height: 300px; Should be removed. Only for demonstration */
 }
 .column2 {
   float: left;
-  width: 70%;
+  width: 68%;
   padding: 4px;
   /* height: 300px; Should be removed. Only for demonstration */
+}
+  
+.column3 {
+  float: right;
+  font-size: 12px;
+  padding: 2px;
 }
   
 /* Clear floats after the columns */
@@ -123,6 +130,16 @@ html, body {
   overflow-y: scroll;
   outline: 1px solid black;
   scroll-snap-type: y mandatory;
+}
+.division-li {
+  color: rgb(13, 2, 56);
+  font-weight: bold;
+  background-color: rgb(206, 225, 247);
+  padding: 4px;
+  font-size: 16px;
+  line-height: var(--default-line-height);
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
 }
 .caption-li {
   font-size: 16px;

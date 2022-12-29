@@ -1,10 +1,12 @@
 /* */
 function viewDict(dict) {
 
+    if(typeof toastr == 'undefined')return;
+
     var word = dict.innerHTML
     var rlist = getDict(word);
     var deco_word = '<span class="dict-word">'+word+'</span>'
-        
+    
     rlist.forEach((x, i) => 
         toastr.success('', deco_word + ' : ' + x, {
             timeOut: 8000,
@@ -53,7 +55,60 @@ function fancyTimeFormat(duration)
     return ret;
 }
 
-function getcaptions(url) {
+function getSubtitles(url){
+
+  var result = null;
+  $.ajax({
+    type: "GET",
+    url: url,
+    async: false,
+    success: function (response) {
+      result = response;
+    }
+  });
+  return result;
+
+}
+
+function retrieveSubtitles(subtitles, caption_ul, isWeight=false, division=[], division_title='Section'){
+
+  $(caption_ul).empty();
+
+  var len = 0;
+
+  $(subtitles).each(function(i,val)
+  {
+
+    //var start = (Math.round(val.start * 10) / 10);
+    var end = (Math.round(val.end * 10) / 10);
+    //var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
+    var line = '<div class="row-li">';
+    if(val.hasOwnProperty('text_c')){
+      line += '<div class="column0_1" onclick="openToast('+""+i+')">'
+    }else{
+      line += '<div class="column0_2">'
+    }
+    line += ""+i+'</div><div class="column1">'+"~ "+fancyTimeFormat(end)+
+      '</div><div class="column2">'+val.text+'</div>';
+    if(isWeight==true){
+      len += val.len;
+      line += '<div class="column3">'+len+'</div></div>';
+    }else{
+      line += '</div>';
+    }
+    if(division.length > 0){ 
+      if(division.includes(i)){
+        var ind = division.indexOf(i)+1 ;
+        $(caption_ul).append('<li class="division-li" id="div-'+ ind +'">'+ division_title + ' ' + ind +"</li>")
+      }
+    }
+    $(caption_ul).append('<li class="caption-li" id="li-'+ i +'">'+ line +"</li>");
+
+  });
+
+}
+
+function getcaptions(url, isWeight=false, division=[], division_title='Section') {
 
   $.ajax({
     type: "GET",
@@ -63,12 +118,14 @@ function getcaptions(url) {
       captions = response.data;
       //console.log(captions)
       $("#caption-ul").empty();
+
+      var len = 0;
+
       $(response.data).each(function(i,val)
       {
 
-        var start = (Math.round(val.start * 10) / 10);
-        var end   = (Math.round(val.end * 10) / 10);
-          
+        //var start = (Math.round(val.start * 10) / 10);
+        var end = (Math.round(val.end * 10) / 10);
         //var line = ""+i+" : "+start+" ~ "+end+" "+val.text;
         var line = '<div class="row-li">';
         if(val.hasOwnProperty('text_c')){
@@ -77,7 +134,19 @@ function getcaptions(url) {
           line += '<div class="column0_2">'
         }
         line += ""+i+'</div><div class="column1">'+"~ "+fancyTimeFormat(end)+
-          '</div><div class="column2">'+val.text+'</div></div>';
+          '</div><div class="column2">'+val.text+'</div>';
+        if(isWeight==true){
+          len += val.len;
+          line += '<div class="column3">'+len+'</div></div>';
+        }else{
+          line += '</div>';
+        }
+        if(division.length > 0){ 
+          if(division.includes(i) || i==0){
+            var ind = i==0 ? 1 : division.indexOf(i)+2 ;
+            $("#caption-ul").append('<li class="caption-li division-li" id="div-'+ ind +'">'+ division_title + ' ' + ind +"</li>")
+          }
+        }
         $("#caption-ul").append('<li class="caption-li" id="li-'+ i +'">'+ line +"</li>");
 
       });

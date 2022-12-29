@@ -65,6 +65,7 @@ class DifficultyEnum(enum.Enum):
 class SplitTypeEnum(enum.Enum):
     FIXED_WEIGHT = 'Fixed size'
     SAME_WEIGHT  = 'Same size'
+    BY_TITLE     = 'Classified by title'
     CUSTOM_DEFINED = 'Custom defined'
 
 class VerifyYaml(object):

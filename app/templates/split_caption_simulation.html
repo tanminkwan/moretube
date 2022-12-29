@@ -1,10 +1,48 @@
+<link rel="stylesheet" href="/static/css/mycss.css?version=20221228.12" />
+<script src="/static/js/myjs.js?version=20221228.12"></script>
 <div class="well well-sm">
-    <button id="simul-button" class="btn  btn-sm btn-primary">TEST1</button>
+    <button id="simul-button" class="btn  btn-sm btn-primary">Simulation</button>
 </div>
+<div id="caption">
+    <nav id="nav-cap">
+      <ul id="caption-ul">
+      </ul>
+    </nav>
+  </div>
 <script>
     $( "#simul-button" ).click(function() {
-        var vtype = document.getElementById("split_type").value;
-        var vvalue = document.getElementById("split_value").value;
-        console.log(vtype+vvalue);
+        var vcaption = document.getElementById("utube_content_caption").value;
+        var vtype    = document.getElementById("split_type").value;
+        var vvalue   = document.getElementById("split_value").value;
+        var vtitle   = document.getElementById("split_title").value;
+        
+        let division = [];
+
+        if(vtype=="CUSTOM_DEFINED"){
+            division = vvalue.split(",").map(Number);
+        }
+        
+        if(vtitle==""){
+            vtitle= "Section";
+        }
+        
+        var subtitles = getSubtitles("/api/v1/mytube/mytube_caption/"+vcaption);
+        var captions = subtitles.data;
+        retrieveSubtitles(captions, "#caption-ul"
+            , isWeight=true
+            , division=division
+            , division_title=vtitle
+        );
+
+        /*
+        getcaptions("/api/v1/mytube/mytube_caption/"+vcaption
+            , isWeight=true
+            , division=division
+            , division_title=vtitle);
+        */
     });
+
+    function openToast(id){
+        return;
+    }
 </script>

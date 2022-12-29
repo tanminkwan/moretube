@@ -67,6 +67,51 @@ def convertYcap2Jcap(ycap):
     jlist4 = _addLen(jlist3)
     return _addID(jlist4)
 
+def _getDivision(data, split_type, split_value):
+
+    division = []
+    match split_type:
+      case "CUSTOM_DEFINED":
+        division = list(map(int, split_value.split(',')))
+      case "SAME_WEIGHT":
+        pass
+      case "FIXED_WEIGHT":
+        pass
+      case "BY_TITLE":
+        pass
+      case _:
+        pass
+
+    return division
+
+def _getCaptions(utube_content_caption):
+
+    data = []
+    division = []
+    division_title = ""
+
+    row = next((r for r in utube_content_caption if r.picked_yn.name == 'YES'), "")
+
+    if row:
+      data = row.captions['data']
+
+      for s in row.split_caption:
+        for ss in s.ab_user:
+          if g.user.username == ss.username:
+            division = _getDivision(data, s.split_type.name, s.split_value)
+            division_title = s.split_title
+            break
+
+        if division:
+          break
+
+    return dict(
+            data = data ,
+            division = division ,
+            division_title = division_title ,
+          )
+
+
 @db.event.listens_for(Mp4ContentMaster, 'before_insert')
 def transecode_mp4(mapper, connection, target):
     
@@ -118,9 +163,16 @@ class SplitCaptionView(ModelView):
     edit_template = 'edit_simulation.html'
     
     list_title = 'Split Caption'
-    list_columns = ['utube_content_caption','split_caption_id','caption_id','split_type','split_value','create_on']
+    list_columns = ['utube_content_caption','split_caption_id','ab_user','split_type','split_value','create_on']
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
+
+    description_columns = {
+      'split_type':'[Fixed size : 고정길이로 분할, split value에 고정길이(byte)입력]'
+          +' [Same size : 동일한 길이로 분할, split value에 분할 개수 입력]'
+          +' [Classified by title : 특정 문자열 기준으로 분할, split value에 특정 문자열 입력]'
+          +' [Custom Defined : 분할기준 직접입력, split value에 각 분할단위의 마지막 id를 ","를 구분자로 순차적으로 입력(ex : 5,8,13,22)]' ,
+    }
 
 class UTubeContentCaptionView(ModelView):
     datamodel = SQLAInterface(UTubeContentCaption)
@@ -287,30 +339,55 @@ class ContentsInfo(BaseApi):
 
       if content.utube_content_caption:
         for row in content.utube_content_caption:
+
           if row.picked_yn.name == 'YES':
             data = row.captions['data']
-            break    
+            break
 
-      return jsonify({'data':data})
+      result = {'data':data}
 
-    @expose('/caption/<id>', methods=['GET'])
+      return jsonify(result)
+
+    @expose('/mytube_caption/<id>', methods=['GET'])
     @has_access
-    def getCaption(self, id):
+    def getMytubeCaption(self, id):
       
+      result = dict()
       data = []
-      content, _ = selectRow('utube_content_master',{'content_id':id})
+      content, _ = selectRow('utube_content_master',{'id':id})
 
       if content.utube_content_caption:
         for row in content.utube_content_caption:
           if row.picked_yn.name == 'YES':
             data = row.captions['data']
             break    
+      
+      result.update({'data':data})
 
-      if not data:
+      return jsonify(result)
+
+    @expose('/caption/<id>', methods=['GET'])
+    @has_access
+    def getCaption(self, id):
+      
+      result = dict()
+      data = []
+      content, _ = selectRow('utube_content_master',{'content_id':id})
+
+      if content.utube_content_caption:
+        result = _getCaptions(content.utube_content_caption)
+        """
+        for row in content.utube_content_caption:
+          if row.picked_yn.name == 'YES':
+            data = row.captions['data']
+            break    
+        """
+      if not result['data']:
         jlist = getUtubeCap(id)
         data = addIdNStart(jlist)
-      
-      return jsonify({'data':data})
+        result = {'data':data}
+
+      return jsonify(result)
 
     @expose('/caption_yaml/<id>', methods=['GET'])
     @has_access
