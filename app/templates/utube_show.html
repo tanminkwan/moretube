@@ -3,10 +3,10 @@
 {% block content %}
 <link rel="stylesheet" href="/static/css/toggle.css" />
 <link rel="stylesheet" href="/static/css/toastr_modi.css" />
-<link rel="stylesheet" href="/static/css/mycss.css?version=20221228.24" />
+<link rel="stylesheet" href="/static/css/mycss.css?version=20221228.27" />
 <script src="/static/js/toggle.js"></script>
 <script src="/static/js/toastr_modi.js"></script>
-<script src="/static/js/myjs.js?version=20221228.24"></script>
+<script src="/static/js/myjs.js?version=20221228.27"></script>
 <script src="/static/js/jquery.finger.js"></script>
 
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
@@ -143,13 +143,18 @@
         player.playVideo();
       }
       
-      function playById(id){
+      function playById(id, division=""){
         
         let rid = id<0 ? 0 : id;
 
         if(playMode==2){
           current_caption=rid
-          captionScroll(current_caption);
+
+          if(division==""){
+            subtitleScroll("li-"+current_caption);
+          }else{
+            subtitleScroll(division);
+          }
         }
 
         player.seekTo(captions[rid].start , true);
@@ -211,6 +216,12 @@
         playById(parseInt(s_id));
       });
 
+      $('.row').on('press', '.division-li', function() {
+        var s_id = $(this).attr('start');
+        var d_id = $(this).attr('id');
+        playById(parseInt(s_id), d_id);
+      });
+
       // Update the count down every 1 second
       var x = setInterval(function() {
         var ct = !player.getCurrentTime ? 0.0 : player.getCurrentTime();
@@ -228,7 +239,7 @@
               var val_id = musicSearch(captions, ct);
               if(val_id>=0){
                 current_caption = val_id
-                captionScroll(val_id);
+                subtitleScroll("li-"+val_id);
               }
             }
 
@@ -245,18 +256,6 @@
         }
 
       }, 300);
-
-      function captionScroll(x) {
-        //$('#caption-ul').scrollTop($('#caption-ul li:eq('+x+')').offset().top);
-        if(x==0){
-          $('#caption-ul').scrollTop($('#caption-ul li:nth-child(1)').position().top - $('#caption-ul li:first').position().top);
-        }else{
-          //$('#caption-ul').scrollTop($('#caption-ul li:nth-child('+x+')').position().top - $('#caption-ul li:first').position().top);
-          $('#caption-ul').scrollTop($('#caption-ul #li-'+x).position().top - $('#caption-ul li:first').position().top);
-        }
-        $('#li-'+x).css("background-color","white")
-        //$("caption-ul").get(x).scrollIntoView();
-      }
 
       function musicSearch(items, value){
         var rtn = -1;

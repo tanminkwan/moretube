@@ -99,13 +99,25 @@ function retrieveSubtitles(subtitles, caption_ul, isWeight=false, division=[], d
     if(division.length > 0){ 
       if(division.includes(i)){
         var ind = division.indexOf(i)+1 ;
-        $(caption_ul).append('<li class="division-li" id="div-'+ ind +'">'+ division_title + ' ' + ind +"</li>")
+        $(caption_ul).append('<li class="division-li" id="div-'+ ind +'" start="'+i+'">'+ division_title + ' ' + ind +"</li>")
       }
     }
     $(caption_ul).append('<li class="caption-li" id="li-'+ i +'">'+ line +"</li>");
 
   });
 
+}
+
+function subtitleScroll(x) {
+  //$('#caption-ul').scrollTop($('#caption-ul li:eq('+x+')').offset().top);
+  if(x==0){
+    $('#caption-ul').scrollTop($('#caption-ul li:nth-child(1)').position().top - $('#caption-ul li:first').position().top);
+  }else{
+    //$('#caption-ul').scrollTop($('#caption-ul li:nth-child('+x+')').position().top - $('#caption-ul li:first').position().top);
+    $('#caption-ul').scrollTop($('#caption-ul #'+x).position().top - $('#caption-ul li:first').position().top);
+  }
+  $('#'+x).css("background-color","white")
+  //$("caption-ul").get(x).scrollIntoView();
 }
 
 function getcaptions(url, isWeight=false, division=[], division_title='Section') {
