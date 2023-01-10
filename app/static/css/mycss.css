@@ -13,6 +13,9 @@
     background-color:rgb(226, 222, 222);
     user-select: none;
 }
+#stopmode {
+  user-select: none; 
+}
 button {
   user-select: none; 
 }
@@ -154,6 +157,7 @@ html, body {
   border: 1px solid #dddddd;
   text-align: center;
   padding: 4px;
+  user-select: none;
 }
 table, th, td {
   border-collapse: collapse;

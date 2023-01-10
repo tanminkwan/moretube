@@ -1,6 +1,7 @@
 .toast-title {
   /*font-weight: bold;*/
   font-size: 20px;
+  user-select: none;
 }
 .toast-message {
   -ms-word-wrap: break-word;

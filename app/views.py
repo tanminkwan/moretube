@@ -23,7 +23,7 @@ REPMAP = [
   ('(v(','<span class="w_verb">'),
   ('(<(','<span class="p_relative">'),
   ('(t(','<span class="p_title">'),
-  ('(d(','<span class="w_dict" onclick="viewDict(this)">'),
+  ('(d(','<span class="w_dict">'),
   ('))','</span>'),
 ]
 
@@ -382,7 +382,7 @@ class ContentsInfo(BaseApi):
             data = row.captions['data']
             break    
         """
-      if not result['data']:
+      if not result.get('data'):
         jlist = getUtubeCap(id)
         data = addIdNStart(jlist)
         result = {'data':data}
