@@ -1,6 +1,14 @@
 #video-area {
     position:relative;
 }
+#video-section {
+  position:absolute;
+  top: 12%;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  user-select: none;
+  display: none;
+}
 #video-title {
     position:absolute;
     top: 6%;
@@ -125,6 +133,14 @@ html, body {
 :root {
   --default-line-height: 20px;
 }
+
+table#section-ul, td {
+  background-color: whitesmoke;
+  width: 320px;
+  outline: 1px solid gray;  
+  border-spacing: 3px;
+}
+
 #caption-ul {
   background-color: rgb(247, 229, 229);
   height: var(--default-line-height);
@@ -159,7 +175,11 @@ html, body {
   padding: 4px;
   user-select: none;
 }
-table, th, td {
+table.function-buttons, th, td {
+  border-collapse: collapse;
+  padding: 4px;
+}
+table.speed-buttons, th, td {
   border-collapse: collapse;
   padding: 4px;
 }

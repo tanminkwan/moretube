@@ -99,7 +99,8 @@ function retrieveSubtitles(subtitles, caption_ul, isWeight=false, division=[], d
     if(division.length > 0){ 
       if(division.includes(i)){
         var ind = division.indexOf(i)+1 ;
-        $(caption_ul).append('<li class="division-li" id="div-'+ ind +'" start="'+i+'">'+ division_title + ' ' + ind +"</li>")
+        $(caption_ul).append('<li class="division-li" id="div-'+ ind +'" start="'+ i +'">'+ division_title + ' ' + ind +"</li>")
+        $("#section-ul").append('<tr class="section-li" cid="div-'+ ind +'" start="'+ i +'"><td>'+ i +' ~ </td><td>'+ division_title + ' ' + ind +"</td></tr>");
       }
     }
     $(caption_ul).append('<li class="caption-li" id="li-'+ i +'">'+ line +"</li>");
@@ -156,7 +157,8 @@ function getcaptions(url, isWeight=false, division=[], division_title='Section')
         if(division.length > 0){ 
           if(division.includes(i) || i==0){
             var ind = i==0 ? 1 : division.indexOf(i)+2 ;
-            $("#caption-ul").append('<li class="caption-li division-li" id="div-'+ ind +'">'+ division_title + ' ' + ind +"</li>")
+            $("#caption-ul").append('<li class="caption-li division-li" id="div-'+ ind +'">'+ division_title + ' ' + ind +"</li>");
+            $("#section-ul").append('<li class="division-li" start="'+ i +'">'+ division_title + ' ' + ind +"</li>");
           }
         }
         $("#caption-ul").append('<li class="caption-li" id="li-'+ i +'">'+ line +"</li>");
