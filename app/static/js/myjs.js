@@ -173,3 +173,29 @@ function getcaptions(url, isWeight=false, division=[], division_title='Section')
 
 }
 
+$('.row').on('click', '#video-title', function() {
+  $("#video-section").toggle();
+});
+
+$('.row').on('click', '.w_dict', function() {
+  viewDict(this);
+});
+
+$('.row').on('press', '.row-li', function() {
+  var s_id = $(this).find('[class^=column0]').text();
+  playById(parseInt(s_id));
+});
+
+$('.row').on('press', '.division-li', function() {
+  var s_id = $(this).attr('start');
+  var d_id = $(this).attr('id');
+  playById(parseInt(s_id), d_id);
+});
+
+$('.row').on('click', '.section-li', function() {
+  var s_id = $(this).attr('start');
+  var d_id = $(this).attr('cid');
+  playById(parseInt(s_id), d_id);
+  $("#video-section").toggle();
+});
+

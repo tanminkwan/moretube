@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="/static/css/mycss.css?version=20230110.17" />
 <script src="/static/js/toggle.js"></script>
 <script src="/static/js/toastr_modi.js?version=20230110.01"></script>
-<script src="/static/js/myjs.js?version=20230110.14"></script>
+<script src="/static/js/myjs.js?version=20230110.15"></script>
 <script src="/static/js/jquery.finger.js"></script>
 
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
@@ -218,32 +218,6 @@
       $.Finger  = {
         pressDuration: 1000,
       };
-
-      $('.row').on('click', '#video-title', function() {
-        $("#video-section").toggle();
-      });
-
-      $('.row').on('click', '.w_dict', function() {
-        viewDict(this);
-      });
-
-      $('.row').on('press', '.row-li', function() {
-        var s_id = $(this).find('[class^=column0]').text();
-        playById(parseInt(s_id));
-      });
-
-      $('.row').on('press', '.division-li', function() {
-        var s_id = $(this).attr('start');
-        var d_id = $(this).attr('id');
-        playById(parseInt(s_id), d_id);
-      });
-
-      $('.row').on('click', '.section-li', function() {
-        var s_id = $(this).attr('start');
-        var d_id = $(this).attr('cid');
-        playById(parseInt(s_id), d_id);
-        $("#video-section").toggle();
-      });
 
       // Update the count down every 1 second
       var x = setInterval(function() {

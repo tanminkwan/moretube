@@ -334,17 +334,13 @@ class ContentsInfo(BaseApi):
     @has_access
     def getHlsCaption(self, id):
       
-      data = []
+      result = dict()
       content, _ = selectRow('mp4_content_master',{'id':id})
 
       if content.utube_content_caption:
-        for row in content.utube_content_caption:
-
-          if row.picked_yn.name == 'YES':
-            data = row.captions['data']
-            break
-
-      result = {'data':data}
+        result = _getCaptions(content.utube_content_caption)
+      else:
+        result = {'data':[]}
 
       return jsonify(result)
 
