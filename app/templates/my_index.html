@@ -42,10 +42,17 @@
 <script>
     var p_condition = `
     {
+        "filters": [
+          {
+            "col": "picked_yn",
+            "opr": "eq",
+            "value": "YES"
+          }
+        ],
         "order_column": "create_on",
         "order_direction": "desc",
         "page": 0,
-        "page_size": 5
+        "page_size": 8
     }`
     $.ajax({
         type: "GET",

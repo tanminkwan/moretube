@@ -207,14 +207,14 @@ class UTubeContentCaptionView(ModelView):
 class Mp4ContentMasterView(ModelView):
     datamodel = SQLAInterface(Mp4ContentMaster)
     list_title = 'Mp4 Contents'
-    list_columns = ['show_html','get_filename','description','difficulty','download','create_on']
+    list_columns = ['show_html','get_filename','description','difficulty','picked_yn','download','create_on']
     edit_exclude_columns = ['id','file','create_on']
     add_exclude_columns = ['id','manifest_path','create_on']
 
 class UTubeContentMasterView(ModelView):
     datamodel = SQLAInterface(UTubeContentMaster)
     list_title = 'YouTube Contents'
-    list_columns = ['show_html','content_description','content_id','utube_content_caption','difficulty','create_on']
+    list_columns = ['show_html','content_description','content_id','utube_content_caption','difficulty','picked_yn','create_on']
     #label_columns = {'id':'SEQ','name':'이름','description':'메세지','create_on':'생성일지'}
     edit_exclude_columns = ['id','create_on']
     add_exclude_columns = ['id','create_on']
@@ -574,7 +574,7 @@ class UTubeContent(BaseApi):
       if row:
         return render_template('utube_show.html',\
                 content_id  = row.content_id,
-                play_from   = row.play_from,
+                play_from   = row.play_from if row.play_from else 0,
                 play_to     = row.play_to,
                 content_description = row.content_description,
                 base_template=appbuilder.base_template,

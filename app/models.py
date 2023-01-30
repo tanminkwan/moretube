@@ -59,6 +59,7 @@ class Mp4ContentMaster(Model):
     description     = Column(String(500), nullable=True, comment='설명')
     manifest_path   = Column(String(500), nullable=True, comment='m8u3 파일 url path')
     difficulty   = Column(Enum(DifficultyEnum), info={'enum_class':DifficultyEnum}, comment='난이도')
+    picked_yn    = Column(Enum(YnEnum), info={'enum_class':YnEnum}, server_default=("NO"), comment='Home 게시 여부')
     user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
     create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
 
@@ -92,10 +93,11 @@ class UTubeContentMaster(Model):
     
     id = Column(Integer, primary_key=True)
     content_id  = Column(String(100), nullable=False, comment='YouTube Contents URL')
-    play_from    = Column(Integer, nullable=False, comment='')
-    play_to      = Column(Integer, nullable=False, comment='')
+    play_from    = Column(Integer, nullable=True, comment='')
+    play_to      = Column(Integer, nullable=True, comment='')
     content_description  = Column(String(500), nullable=True, comment='설명')
     difficulty   = Column(Enum(DifficultyEnum), info={'enum_class':DifficultyEnum}, comment='난이도')
+    picked_yn    = Column(Enum(YnEnum), info={'enum_class':YnEnum}, server_default=("NO"), comment='Home 게시 여부')
     user_id      = Column(String(100), default=get_user, nullable=False, comment='입력 user')
     create_on    = Column(DateTime(), default=get_now, nullable=False, comment='입력 일시')
     
