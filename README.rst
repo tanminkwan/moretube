@@ -33,4 +33,13 @@ Base Skeleton to start your application using Flask-AppBuilder
     head tag 안에 code 추가 : 
     <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
+- How to run docker
+    # docker run -d \
+    --name=moretube-app \
+    -e DATABASE_URI='postgresql://more:1q2w3e4r!!@ecam.creamm2xnb34.us-east-1.rds.amazonaws.com:5432/more' \
+    -e REDIS_URI='redis://tiffanie.xghtcu.ng.0001.use1.cache.amazonaws.com:6379' \
+    -p 80:5000 \
+    -v /home/ubuntu/moretube/static:/static \
+    tanminkwan/moretube
+    
 That's it!!
