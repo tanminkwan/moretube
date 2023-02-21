@@ -17,9 +17,11 @@ SECRET_KEY = "\2\1thisismyscretkey\1\2\e\y\y\h"
 # The SQLAlchemy connection string.
 # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "app.db")
 # SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
-SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:1q2w3e4r!!@localhost/more'
 
-# SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URI']
+if os.environ.get('DATABASE_URI'):
+  SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URI']
+else:
+  SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:1q2w3e4r!!@localhost/more'
 
 STREAM_URL = os.environ['STREAM_URL'] if os.environ.get('STREAM_URL') else ''
 
