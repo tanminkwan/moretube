@@ -1,5 +1,5 @@
 import os
-#import redis
+import redis
 
 from flask_appbuilder.security.manager import (
     AUTH_OID,
@@ -25,10 +25,11 @@ else:
 
 STREAM_URL = os.environ['STREAM_URL'] if os.environ.get('STREAM_URL') else ''
 
-#SESSION_TYPE = 'redis'
-#SESSION_PERMANENT = False
-#SESSION_USE_SIGNER = True
-#SESSION_REDIS = redis.from_url(os.environ['REDIS_URI'])
+if os.environ.get('REDIS_URI'):
+  SESSION_TYPE = 'redis'
+  SESSION_PERMANENT = False
+  SESSION_USE_SIGNER = True
+  SESSION_REDIS = redis.from_url(os.environ['REDIS_URI'])
 
 # Flask-WTF flag for CSRF
 CSRF_ENABLED = True
