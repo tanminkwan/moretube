@@ -43,4 +43,11 @@ Base Skeleton to start your application using Flask-AppBuilder
     -v /home/ubuntu/moretube/static:/static \
     tanminkwan/moretube
     
+    # docker run -d \
+    --name=moretube-app \
+    --network=host \
+    -e DATABASE_URI='postgresql://tiffanie:1q2w3e4r!!@localhost/moretube' \
+    -v /home/ubuntu/static:/static \
+    tanminkwan/moretube
+    
 That's it!!
