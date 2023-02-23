@@ -43,6 +43,8 @@ Base Skeleton to start your application using Flask-AppBuilder
     -v /home/ubuntu/moretube/static:/static \
     tanminkwan/moretube
     
+    또는 
+    
     # docker run -d \
     --name=moretube-app \
     --network=host \
