@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  moretube-db:
+    image: postgres:15.2-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD='1q2w3e4r!!'
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - '5432:5432'
+    volumes:
+      - /home/ubuntu/data:/var/lib/postgresql/data
+      - ./create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
+  moretube:
+    container_name: moretube-app
+    image: tanminkwan/moretube
+    depends_on:
+      - moretube-db
+    ports:
+      - 80:5000
+    environment:
+      DATABASE_HOST: moretube-db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: moretube
+      DATABASE_USER: tiffanie
+      DATABASE_PASSWD: '1q2w3e4r!!'
+    links:
+      - moretube-db
+    volumes:
+      - /home/ubuntu/static:/static
