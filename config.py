@@ -20,6 +20,13 @@ SECRET_KEY = "\2\1thisismyscretkey\1\2\e\y\y\h"
 
 if os.environ.get('DATABASE_URI'):
   SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URI']
+elif os.environ.get('DATABASE_HOST'):
+  db_host = os.environ['DATABASE_HOST']
+  db_port = os.environ['DATABASE_PORT']
+  db_name = os.environ['DATABASE_NAME']
+  db_user = os.environ['DATABASE_USER']
+  db_pw   = os.environ['DATABASE_PASSWD']
+  SQLALCHEMY_DATABASE_URI = 'postgresql://'+db_user+':'+db_pw+'@'+db_host+':'+db_port+'/'+db_name
 else:
   SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:1q2w3e4r!!@localhost/more'
 
