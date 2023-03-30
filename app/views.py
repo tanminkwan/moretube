@@ -116,6 +116,10 @@ def _getCaptions(utube_content_caption):
 def transecode_mp4(mapper, connection, target):
     
     filename = str(target.file)
+
+    if os.path.splitext(filename)[1] != '.mp4':
+      return
+
     fileId   = filename[:-4]
     inputFile = app.config['UPLOAD_FOLDER'] + filename
     outputPath = app.config['HLS_STREAM_FOLDER'] + fileId
