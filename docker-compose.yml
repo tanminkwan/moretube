@@ -10,7 +10,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - /home/ubuntu/data:/var/lib/postgresql/data
+      - /home/hennry/data:/var/lib/postgresql/data
       - ./create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
   moretube:
     container_name: moretube-app
@@ -28,4 +28,4 @@ services:
     links:
       - moretube-db
     volumes:
-      - /home/ubuntu/static:/static
+      - /home/hennry/static:/static
